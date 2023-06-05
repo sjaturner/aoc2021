@@ -2,21 +2,16 @@ use std::io::{self, BufRead};
 
 fn main() {
     let stdin = io::stdin();
-    let mut last: Option<i32> = None;
-    let mut increased = 0;
+    let mut bits: Option<usize> = None;
     for line in stdin.lock().lines() {
         let line = line.expect("Could not read line from standard in");
-        let depth: i32 = line.parse().unwrap();
+        let line = line.trim();
+        let length = line.len();
 
-        match last {
-            Some(val) => {
-                if depth > val {
-                    increased += 1;
-                }
-            }
-            _ => (),
+        if bits.is_none() {
+            bits = Some(length);
+        } else {
+            assert!(bits == Some(length));
         }
-        last = Some(depth);
     }
-    println!("{increased}")
 }
