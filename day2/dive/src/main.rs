@@ -2,21 +2,19 @@ use std::io::{self, BufRead};
 
 fn main() {
     let stdin = io::stdin();
-    let mut last: Option<i32> = None;
-    let mut increased = 0;
+    let mut depth = 0;
+    let mut forward = 0;
     for line in stdin.lock().lines() {
         let line = line.expect("Could not read line from standard in");
-        let depth: i32 = line.parse().unwrap();
+        let line: Vec<&str> = line.split(' ').collect();
+        let val = line[1].parse::<i32>().unwrap();
 
-        match last {
-            Some(val) => {
-                if depth > val {
-                    increased += 1;
-                }
-            }
-            _ => (),
+        match line[0] {
+            "up" => depth -= val,
+            "down" => depth += val,
+            "forward" => forward += val,
+            &_ => todo!(),
         }
-        last = Some(depth);
     }
-    println!("{increased}")
+    println!("{} {} {}", depth, forward, depth * forward)
 }
