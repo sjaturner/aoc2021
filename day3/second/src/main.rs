@@ -1,13 +1,19 @@
 use std::io::{self, BufRead};
 use std::iter;
 
+fn dump(lines: &Vec<String>, keep: &Vec<i32>) {
+    for index in 0..lines.len() {
+        println!("{} {}", keep[index], lines[index]);
+    }
+}
+
 fn filter(lines: &Vec<String>, keep: &mut Vec<i32>, offset: usize, sel: u32) -> usize {
     let mut tally: [u32; 2] = [0, 0];
 
     for index in 0..lines.len() {
         if keep[index] != 0 {
             let character = lines[index].chars().nth(offset).unwrap();
-            println!("{character}");
+            //          println!("{character}");
             if character == '1' {
                 tally[1] += 1;
             } else if character == '0' {
@@ -18,7 +24,7 @@ fn filter(lines: &Vec<String>, keep: &mut Vec<i32>, offset: usize, sel: u32) -> 
         }
     }
 
-    println!("{:?}", tally);
+    //  println!("{:?}", tally);
 
     let retain = if sel == 1 {
         if tally[0] > tally[1] {
@@ -38,8 +44,6 @@ fn filter(lines: &Vec<String>, keep: &mut Vec<i32>, offset: usize, sel: u32) -> 
         }
     };
 
-    println!("{offset} {retain}");
-
     for index in 0..lines.len() {
         let character = lines[index].chars().nth(offset).unwrap();
         if character != retain {
@@ -58,16 +62,31 @@ fn main() {
         let line = line.trim();
         lines.push(String::from(line))
     }
-    let mut keep: Vec<i32> = iter::repeat(1).take(lines.len()).collect();
+    let mut offset;
 
-    let mut offset = 0;
+    let mut keep: Vec<i32> = iter::repeat(1).take(lines.len()).collect();
+    offset = 0;
     while filter(&lines, &mut keep, offset, 1) > 1 {
-        for index in 0..keep.len() {
-            if keep[index] != 0 {
-                println!("{}", lines[index]);
-            }
-        }
-        println!();
+        //      dump(&lines, &keep);
         offset += 1;
     }
+
+    let mut oxygen = 0;
+    if let Some(index) = keep.iter().position(|&x| x != 0) {
+        oxygen = isize::from_str_radix(&lines[index], 2).unwrap();
+    };
+
+    let mut keep: Vec<i32> = iter::repeat(1).take(lines.len()).collect();
+    offset = 0;
+    while filter(&lines, &mut keep, offset, 0) > 1 {
+        //      dump(&lines, &keep);
+        offset += 1;
+    }
+    let mut carbon_dioxide = 0;
+
+    if let Some(index) = keep.iter().position(|&x| x != 0) {
+        carbon_dioxide = isize::from_str_radix(&lines[index], 2).unwrap();
+    };
+
+    println!("{} {} {}", oxygen, carbon_dioxide, oxygen * carbon_dioxide);
 }
