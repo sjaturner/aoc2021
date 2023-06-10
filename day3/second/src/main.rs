@@ -54,6 +54,21 @@ fn filter(lines: &Vec<String>, keep: &mut Vec<i32>, offset: usize, sel: u32) -> 
     return keep.iter().sum::<i32>() as usize;
 }
 
+fn metric(lines: &Vec<String>, sel: u32) -> usize {
+    let mut keep: Vec<i32> = iter::repeat(1).take(lines.len()).collect();
+    let mut offset = 0;
+
+    while filter(&lines, &mut keep, offset, sel) > 1 {
+        offset += 1;
+    }
+
+    if let Some(index) = keep.iter().position(|&x| x != 0) {
+        usize::from_str_radix(&lines[index], 2).unwrap()
+    } else {
+        0
+    }
+}
+
 fn main() {
     let stdin = io::stdin();
     let mut lines = Vec::new();
@@ -71,22 +86,8 @@ fn main() {
         offset += 1;
     }
 
-    let mut oxygen = 0;
-    if let Some(index) = keep.iter().position(|&x| x != 0) {
-        oxygen = isize::from_str_radix(&lines[index], 2).unwrap();
-    };
-
-    let mut keep: Vec<i32> = iter::repeat(1).take(lines.len()).collect();
-    offset = 0;
-    while filter(&lines, &mut keep, offset, 0) > 1 {
-        //      dump(&lines, &keep);
-        offset += 1;
-    }
-    let mut carbon_dioxide = 0;
-
-    if let Some(index) = keep.iter().position(|&x| x != 0) {
-        carbon_dioxide = isize::from_str_radix(&lines[index], 2).unwrap();
-    };
+    let oxygen = metric(&lines, 1);
+    let carbon_dioxide = metric(&lines, 0);
 
     println!("{} {} {}", oxygen, carbon_dioxide, oxygen * carbon_dioxide);
 }
