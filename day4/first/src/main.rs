@@ -28,7 +28,7 @@ fn index_to_crc(index: usize) -> CardRowCol {
 }
 
 fn crc_to_index(crc: CardRowCol) -> usize {
-    0
+    crc.card * ELEMS_PER_CARD + crc.row * ELEMS_PER_ROW + crc.col
 }
 
 fn row_complete(items: Vec<Entry>, index: usize) -> bool {
@@ -42,9 +42,13 @@ fn row_complete(items: Vec<Entry>, index: usize) -> bool {
         });
 
         let entry = &items[index];
+
+        if !entry.marked {
+            return false;
+        }
     }
 
-    false
+    true
 }
 
 fn col_complete(items: Vec<Entry>, index: usize) -> bool {
@@ -83,6 +87,7 @@ fn main() {
 
     assert!(items.len() == cards * ELEMS_PER_CARD);
 
+    items[0].marked = true;
     for number in caller {
         for (index, value) in items
             .iter()
@@ -90,6 +95,11 @@ fn main() {
             .filter(|(_, item)| item.value == number)
         {
             println!("{number} {:?}", index_to_crc(index));
+
+            //          if false {
+            //
+            //              if row_complete(items, index) {}
+            //          }
         }
     }
 }
