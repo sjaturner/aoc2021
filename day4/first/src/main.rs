@@ -9,16 +9,41 @@ const ELEMS_PER_ROW: usize = 5;
 const ROWS_PER_CARD: usize = 5;
 const ELEMS_PER_CARD: usize = ELEMS_PER_ROW * ROWS_PER_CARD;
 
-fn index_to_crc(index: usize, card: &mut usize, row: &mut usize, col: &mut usize) {
+#[derive(Debug)]
+struct CardRowCol {
+    card: usize,
+    row: usize,
+    col: usize,
+}
+
+fn index_to_crc(index: usize) -> CardRowCol {
     let mut pos = index;
-    *card = index / ELEMS_PER_CARD;
-    pos -= *card * ELEMS_PER_CARD;
-    *row = pos / ELEMS_PER_ROW;
-    pos -= *row * ELEMS_PER_ROW;
-    *col = pos;
+    let card = index / ELEMS_PER_CARD;
+    pos -= card * ELEMS_PER_CARD;
+    let row = pos / ELEMS_PER_ROW;
+    pos -= row * ELEMS_PER_ROW;
+    let col = pos;
+
+    CardRowCol { card, row, col }
+}
+
+fn crc_to_index(crc: CardRowCol) -> usize {
+    0
 }
 
 fn row_complete(items: Vec<Entry>, index: usize) -> bool {
+    let crc = index_to_crc(index);
+
+    for col in 0..ELEMS_PER_ROW {
+        let index = crc_to_index(CardRowCol {
+            card: crc.card,
+            row: crc.row,
+            col,
+        });
+
+        let entry = &items[index];
+    }
+
     false
 }
 
@@ -59,9 +84,12 @@ fn main() {
     assert!(items.len() == cards * ELEMS_PER_CARD);
 
     for number in caller {
-        for index in items.iter().position(|item| item.value == number) {
-            println!("{number} {}", index);
+        for (index, value) in items
+            .iter()
+            .enumerate()
+            .filter(|(_, item)| item.value == number)
+        {
+            println!("{number} {:?}", index_to_crc(index));
         }
-        println!();
     }
 }
