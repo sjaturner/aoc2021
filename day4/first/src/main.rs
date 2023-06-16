@@ -90,4 +90,13 @@ fn main() {
             }
         }
     }
+
+    let sum = marked
+        .into_iter()
+        .enumerate()
+        .filter(|&(_, marked)| marked)
+        .map(|(index, _)| entries[index])
+        .sum::<u32>();
+
+    println!("{sum}");
 }
