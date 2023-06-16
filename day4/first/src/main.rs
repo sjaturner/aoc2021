@@ -91,12 +91,11 @@ fn main() {
         }
     }
 
-    let sum = marked
+    let vals = marked
         .into_iter()
         .enumerate()
         .filter(|&(_, marked)| marked)
-        .map(|(index, _)| entries[index])
-        .sum::<u32>();
+        .map(|(index, _)| index)l
 
-    println!("{sum}");
+    println!("{:?}", vals);
 }
