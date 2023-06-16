@@ -94,8 +94,14 @@ fn main() {
     let vals = marked
         .into_iter()
         .enumerate()
-        .filter(|&(_, marked)| marked)
-        .map(|(index, _)| index)l
+        .filter(|&(_, marked)| !marked)
+        .map(|(index, _)| entries[index]);
 
-    println!("{:?}", vals);
+    let mut sum = 0;
+    for val in vals {
+        println!("{val}");
+        sum += val;
+    }
+    println!();
+    println!("{sum}");
 }
