@@ -1,10 +1,5 @@
 use std::io::{self, BufRead};
 
-struct Entry {
-    value: u32,
-    marked: bool,
-}
-
 const ELEMS_PER_ROW: usize = 5;
 const ROWS_PER_CARD: usize = 5;
 const ELEMS_PER_CARD: usize = ELEMS_PER_ROW * ROWS_PER_CARD;
@@ -31,7 +26,7 @@ fn crc_to_index(crc: CardRowCol) -> usize {
     crc.card * ELEMS_PER_CARD + crc.row * ELEMS_PER_ROW + crc.col
 }
 
-fn row_complete(items: Vec<Entry>, index: usize) -> bool {
+fn row_complete(marked: &Vec<bool>, index: usize) -> bool {
     let crc = index_to_crc(index);
 
     for col in 0..ELEMS_PER_ROW {
@@ -41,9 +36,7 @@ fn row_complete(items: Vec<Entry>, index: usize) -> bool {
             col,
         });
 
-        let entry = &items[index];
-
-        if !entry.marked {
+        if !marked[index] {
             return false;
         }
     }
@@ -51,14 +44,15 @@ fn row_complete(items: Vec<Entry>, index: usize) -> bool {
     true
 }
 
-fn col_complete(items: Vec<Entry>, index: usize) -> bool {
+fn col_complete(marked: Vec<bool>, index: usize) -> bool {
     false
 }
 
 fn main() {
     let stdin = io::stdin();
     let mut caller: Vec<u32> = Vec::new();
-    let mut items: Vec<Entry> = Vec::new();
+    let mut entries: Vec<u32> = Vec::new();
+    let mut marked: Vec<bool> = Vec::new();
 
     for line in stdin.lock().lines() {
         let line = line.expect("Could not read line from standard in");
@@ -73,33 +67,27 @@ fn main() {
             if row.len() == 0 {
             } else {
                 for item in &row {
-                    items.push(Entry {
-                        value: item.parse().unwrap(),
-                        marked: false,
-                    });
+                    entries.push(item.parse().unwrap());
+                    marked.push(false);
                 }
             }
         }
     }
-    let cards = items.len() / ELEMS_PER_CARD;
 
-    println!("{cards}");
+    let cards = entries.len() / ELEMS_PER_CARD;
+    assert!(entries.len() == cards * ELEMS_PER_CARD);
 
-    assert!(items.len() == cards * ELEMS_PER_CARD);
-
-    items[0].marked = true;
     for number in caller {
-        for (index, value) in items
+        for (index, value) in entries
             .iter()
             .enumerate()
-            .filter(|(_, item)| item.value == number)
+            .filter(|(_, &item)| item == number)
         {
             println!("{number} {:?}", index_to_crc(index));
-
-            //          if false {
-            //
-            //              if row_complete(items, index) {}
-            //          }
+            marked[index] = true;
+            if row_complete(&marked, index) && row_complete(&marked, index) {
+                println!("bingo");
+            }
         }
     }
 }
