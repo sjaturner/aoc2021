@@ -77,7 +77,7 @@ fn main() {
     let cards = entries.len() / ELEMS_PER_CARD;
     assert!(entries.len() == cards * ELEMS_PER_CARD);
 
-    for number in caller {
+    'bingo: for number in caller {
         for (index, value) in entries
             .iter()
             .enumerate()
@@ -86,7 +86,7 @@ fn main() {
             println!("{number} {:?}", index_to_crc(index));
             marked[index] = true;
             if row_complete(&marked, index) && row_complete(&marked, index) {
-                println!("bingo");
+                break 'bingo;
             }
         }
     }
