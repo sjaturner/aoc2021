@@ -44,8 +44,22 @@ fn row_complete(marked: &Vec<bool>, index: usize) -> bool {
     true
 }
 
-fn col_complete(marked: Vec<bool>, index: usize) -> bool {
-    false
+fn col_complete(marked: &Vec<bool>, index: usize) -> bool {
+    let crc = index_to_crc(index);
+
+    for row in 0..ROWS_PER_CARD {
+        let index = crc_to_index(CardRowCol {
+            card: crc.card,
+            col: crc.col,
+            row,
+        });
+
+        if !marked[index] {
+            return false;
+        }
+    }
+
+    true
 }
 
 fn main() {
@@ -56,11 +70,15 @@ fn main() {
 
     for line in stdin.lock().lines() {
         let line = line.expect("Could not read line from standard in");
-        //      println!("{}", line);
+        if false {
+            println!("{}", line);
+        }
 
         if caller.len() == 0 {
             caller = line.trim().split(',').map(|s| s.parse().unwrap()).collect();
-            println!("{:?}", caller);
+            if false {
+                println!("{:?}", caller);
+            }
         } else {
             let row: Vec<_> = line.trim().split_whitespace().collect();
 
@@ -81,9 +99,9 @@ fn main() {
     'bingo: for number in caller {
         for index in 0..entries.len() {
             if number == entries[index] {
-                println!("{number} {:?}", index_to_crc(index));
+                //              println!("{number} {:?}", index_to_crc(index));
                 marked[index] = true;
-                if row_complete(&marked, index) && row_complete(&marked, index) {
+                if row_complete(&marked, index) || col_complete(&marked, index) {
                     bingo_index = Some(index);
                     break 'bingo;
                 }
