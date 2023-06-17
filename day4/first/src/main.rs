@@ -77,6 +77,7 @@ fn main() {
     let cards = entries.len() / ELEMS_PER_CARD;
     assert!(entries.len() == cards * ELEMS_PER_CARD);
 
+    let mut bingo_index: Option<usize> = None;
     'bingo: for number in caller {
         for (index, value) in entries
             .iter()
@@ -86,22 +87,25 @@ fn main() {
             println!("{number} {:?}", index_to_crc(index));
             marked[index] = true;
             if row_complete(&marked, index) && row_complete(&marked, index) {
+                bingo_index = Some(index);
                 break 'bingo;
             }
         }
     }
 
-    let vals = marked
-        .into_iter()
-        .enumerate()
-        .filter(|&(_, marked)| !marked)
-        .map(|(index, _)| entries[index]);
+    if let Some(bingo_index) = bingo_index {
+        let vals = marked
+            .into_iter()
+            .enumerate()
+            .filter(|&(_, marked)| !marked)
+            .map(|(index, _)| entries[index]);
 
-    let mut sum = 0;
-    for val in vals {
-        println!("{val}");
-        sum += val;
-    }
-    println!();
-    println!("{sum}");
+        let mut sum = 0;
+        for val in vals {
+            println!("{val}");
+            sum += val;
+        }
+        println!();
+        println!("{sum}");
+    };
 }
