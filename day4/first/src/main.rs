@@ -79,32 +79,28 @@ fn main() {
 
     let mut bingo_index: Option<usize> = None;
     'bingo: for number in caller {
-        for (index, value) in entries
-            .iter()
-            .enumerate()
-            .filter(|(_, &item)| item == number)
-        {
-            println!("{number} {:?}", index_to_crc(index));
-            marked[index] = true;
-            if row_complete(&marked, index) && row_complete(&marked, index) {
-                bingo_index = Some(index);
-                break 'bingo;
+        for index in 0..entries.len() {
+            if number == entries[index] {
+                println!("{number} {:?}", index_to_crc(index));
+                marked[index] = true;
+                if row_complete(&marked, index) && row_complete(&marked, index) {
+                    bingo_index = Some(index);
+                    break 'bingo;
+                }
             }
         }
     }
 
     if let Some(bingo_index) = bingo_index {
-        let vals = marked
+        let card = index_to_crc(bingo_index).card;
+        let sum = marked
             .into_iter()
             .enumerate()
+            .filter(|&(index, _)| index_to_crc(index).card == card)
             .filter(|&(_, marked)| !marked)
-            .map(|(index, _)| entries[index]);
+            .map(|(index, _)| entries[index])
+            .sum::<u32>();
 
-        let mut sum = 0;
-        for val in vals {
-            println!("{val}");
-            sum += val;
-        }
         println!();
         println!("{sum}");
     };
