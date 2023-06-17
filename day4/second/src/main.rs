@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::io::{self, BufRead};
 
 const ELEMS_PER_ROW: usize = 5;
@@ -95,15 +96,23 @@ fn main() {
     let cards = entries.len() / ELEMS_PER_CARD;
     assert!(entries.len() == cards * ELEMS_PER_CARD);
 
+    let mut card_done: HashMap<usize, bool> = HashMap::new();
     let mut bingo_index: Option<usize> = None;
     'bingo: for number in caller {
         for index in 0..entries.len() {
+            let card = index_to_crc(index).card;
+            if card_done.contains_key(&card) {
+                continue;
+            }
             if number == entries[index] {
-                //              println!("{number} {:?}", index_to_crc(index));
                 marked[index] = true;
                 if row_complete(&marked, index) || col_complete(&marked, index) {
                     bingo_index = Some(index);
-                    break 'bingo;
+                    card_done.insert(card, true);
+
+                    if false {
+                        break 'bingo;
+                    }
                 }
             }
         }
