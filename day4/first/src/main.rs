@@ -102,6 +102,10 @@ fn main() {
             .sum::<u32>();
 
         println!();
-        println!("{sum}");
+        println!(
+            "{sum} {} {}",
+            entries[bingo_index],
+            sum * entries[bingo_index]
+        );
     };
 }
