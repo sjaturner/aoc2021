@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::io::{self, BufRead};
 
 fn main() {
-    let mut overlaps: HashMap<(u32, u32), u32> = HashMap::new();
+    let mut overlaps: HashMap<(i32, i32), u32> = HashMap::new();
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
         let line = line.expect("Could not read line from standard in");
@@ -11,8 +11,8 @@ fn main() {
         assert!(elems[1] == "->");
         let parser = |s: &str| {
             s.split(',')
-                .map(|x| x.parse::<u32>().unwrap())
-                .collect::<Vec<u32>>()
+                .map(|x| x.parse::<i32>().unwrap())
+                .collect::<Vec<i32>>()
         };
         let a = parser(elems[0]);
         let b = parser(elems[2]);
@@ -33,7 +33,15 @@ fn main() {
                 *overlaps.entry((x, y1)).or_insert(0) += 1;
             }
         } else {
-            //          println!("{x1} {y1} {x2} {y2} #");
+            assert!(i32::abs(x1 - x2) == i32::abs(y1 - y2));
+            let dx = if x1 < x2 { 1 } else { -1 };
+            let dy = if y1 < y2 { 1 } else { -1 };
+
+            for step in 0..=i32::abs(x1 - x2) {
+                *overlaps
+                    .entry((x1 + step * dx, y1 + step * dy))
+                    .or_insert(0) += 1;
+            }
         }
     }
 
