@@ -28,8 +28,11 @@ fn main() {
     for location in *min..=*max {
         let score = crab_location
             .iter()
-            .map(|x| i32::abs(x - location))
-            .sum::<i32>();
+            .map(|x| {
+                let delta = i32::abs(x - location);
+                delta * (delta + 1) / 2
+            })
+            .sum();
 
         if let Some(current) = lowest_score {
             if score == current {
