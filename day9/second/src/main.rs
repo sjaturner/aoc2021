@@ -11,9 +11,39 @@ fn get_cell(array: &Vec<Vec<i32>>, row: i32, col: i32) -> Option<i32> {
     }
 }
 
-fn is_low_point(array: &Vec<Vec<i32>>, row: i32, col: i32) -> Option<i32> {
-    let current_cell = get_cell(array, row, col).unwrap();
+fn basin(array: &Vec<Vec<i32>>, row: i32, col: i32) {
     let deltas = [(-1, 0), (0, 1), (1, 0), (0, -1)];
+    let mut basin_cells: Vec<(i32, i32)> = Vec::new();
+    basin_cells.push((row, col));
+    let mut top: usize = 0;
+
+    loop {
+        let basin_cells_len = basin_cells.len();
+        for index in top..basin_cells_len {
+            let (row_test, col_test) = basin_cells[index];
+            if let Some(center) = get_cell(array, row_test, col_test) {
+                for delta in deltas {
+                    let row = row + delta.0;
+                    let col = col + delta.1;
+                    if let Some(peripheral) = get_cell(array, row, col) {
+                        if peripheral >= center {
+                            basin_cells.push((row, col));
+                        }
+                    }
+                }
+            }
+        }
+
+        if basin_cells_len == basin_cells.len() {
+            break;
+        }
+        top = basin_cells.len()
+    }
+}
+
+fn is_low_point(array: &Vec<Vec<i32>>, row: i32, col: i32) -> Option<i32> {
+    let deltas = [(-1, 0), (0, 1), (1, 0), (0, -1)];
+    let current_cell = get_cell(array, row, col).unwrap();
     let mut matches = 0;
     let mut possible = 0;
 
