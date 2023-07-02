@@ -25,30 +25,42 @@ fn illegal_score(open: char) -> u32 {
         ']' => 57,
         ')' => 3,
         '}' => 1197,
-        '>' => 23517,
+        '>' => 25137,
         _ => panic!("cannot close {}", open),
     };
 }
 
-fn balance(stack: &mut Vec<char>, close: char) {
+fn balance(stack: &mut Vec<char>, close: char) -> u32 {
     if let Some(character) = stack.pop() {
         if character != opener(close) {
-            println!("expected {} saw {}", closer(character), close);
+            if false {
+                println!("expected {} saw {}", closer(character), close);
+            }
+            return illegal_score(close);
         }
     }
+    0
 }
 fn main() {
     let stdin = io::stdin();
+    let mut sum = 0;
 
     for line in stdin.lock().lines() {
         let line = line.expect("Could not read line from standard in");
         let mut stack = Vec::new();
-        for bracket in line.chars() {
+        'line: for bracket in line.chars() {
             match bracket {
                 '[' | '(' | '{' | '<' => stack.push(bracket),
-                ']' | ')' | '}' | '>' => balance(&mut stack, bracket),
+                ']' | ')' | '}' | '>' => {
+                    let result = balance(&mut stack, bracket);
+                    if result != 0 {
+                        sum += result;
+                        break 'line;
+                    }
+                }
                 _ => panic!("did not expect {}", bracket),
             }
         }
     }
+    println!("{sum}");
 }
