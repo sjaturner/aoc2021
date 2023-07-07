@@ -117,10 +117,10 @@ impl fmt::Debug for Cave {
 fn main() {
     let mut cave = Cave::load();
 
-    let goes = 100;
+    let goes = 1000;
     let mut count = 0;
 
-    for _ in 0..goes {
+    for go in 1..=goes {
         let mut pump = cave.blank(1);
 
         loop {
@@ -135,6 +135,20 @@ fn main() {
         }
         cave.reset();
         println!("{:?}", cave);
+
+        let mut all_zeroes = true;
+        for row in 0..cave.rows {
+            for col in 0..cave.cols {
+                if cave.get(row, col) != 0 {
+                    all_zeroes = false;
+                }
+            }
+        }
+
+        if all_zeroes {
+            println!("All zeros at {go}");
+            break;
+        }
     }
     println!("{count}");
 }
