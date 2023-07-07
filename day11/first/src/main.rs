@@ -54,7 +54,7 @@ impl Cave {
         }
         ret
     }
-    fn add(&mut self, vals: &Cave) -> Option<Cave> {
+    fn add(&mut self, vals: &Cave, count: &mut u32) -> Option<Cave> {
         let mut ret = self.blank(0);
         let mut flashes = false;
         for row in 0..self.rows {
@@ -64,6 +64,7 @@ impl Cave {
 
                 if before < 10 && after >= 10 {
                     flashes = true;
+                    *count += 1;
 
                     for delta_row in -1..=1 {
                         for delta_col in -1..=1 {
@@ -116,13 +117,14 @@ impl fmt::Debug for Cave {
 fn main() {
     let mut cave = Cave::load();
 
-    let goes = 10;
+    let goes = 100;
+    let mut count = 0;
 
     for _ in 0..goes {
         let mut pump = cave.blank(1);
 
         loop {
-            if let Some(foo) = cave.add(&pump) {
+            if let Some(foo) = cave.add(&pump, &mut count) {
                 pump = foo;
                 if false {
                     println!("{:?}", pump);
@@ -134,4 +136,5 @@ fn main() {
         cave.reset();
         println!("{:?}", cave);
     }
+    println!("{count}");
 }
