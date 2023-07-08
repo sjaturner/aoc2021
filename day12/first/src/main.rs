@@ -24,8 +24,8 @@ fn recurse(
             let (_, can_revisit, end) = lut[*next_node as usize];
 
             if end {
-                for index in 0..stack.len() {
-                    print!("{},", lut[stack[index] as usize].0)
+                for item in &stack {
+                    print!("{},", lut[item as usize].0)
                 }
                 println!();
             } else if can_revisit {
