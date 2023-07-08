@@ -16,6 +16,32 @@ fn add_lut(lut: &mut Vec<(String, bool, bool)>, item: &str) -> (u32, bool) {
     }
 }
 
+fn recurse(
+    network: &HashMap<u32, Vec<u32>>,
+    lut: &Vec<(String, bool, bool)>,
+    stack: &mut Vec<u32>,
+) {
+    let top_node = stack[stack.len() - 1];
+    if let Some(list) = network.get(&top_node) {
+        for next_node in list {
+            let (_, can_revisit, end) = lut[*next_node as usize];
+
+            if end {
+                for index in 0..stack.len() {
+                    print!("{},", lut[stack[index] as usize].0)
+                }
+                println!();
+            } else if can_revisit {
+                stack.push(*next_node);
+                recurse(network, lut, stack);
+            } else {
+                println!();
+            }
+        }
+    }
+    panic!();
+}
+
 fn main() {
     let stdin = io::stdin();
     let mut network: HashMap<u32, Vec<u32>> = HashMap::new();
@@ -38,6 +64,11 @@ fn main() {
     println!("{:?}", network);
     for index in 0..lut.len() {
         println!("{:?}", lut[index])
+    }
+    if let Some(index) = start_index {
+        let mut stack: Vec<u32> = Vec::new();
+        stack.push(index);
+        recurse(&network, &lut, &mut stack);
     }
     println!("{:?}", start_index);
 }
