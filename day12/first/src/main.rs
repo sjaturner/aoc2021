@@ -17,7 +17,9 @@ fn recurse(
     network: &HashMap<u32, Vec<u32>>,
     lut: &Vec<(String, bool, bool)>,
     stack: &mut Vec<u32>,
+    node_index: u32,
 ) {
+    stack.push(node_index);
     let top_node = stack[stack.len() - 1];
     if let Some(list) = network.get(&top_node) {
         for next_node in list {
@@ -29,9 +31,7 @@ fn recurse(
                 }
                 println!("end");
             } else if can_revisit {
-                stack.push(*next_node);
-                recurse(network, lut, stack);
-                stack.pop();
+                recurse(network, lut, stack, *next_node);
             } else {
                 let mut already_visited = false;
                 for index in 0..stack.len() {
@@ -41,13 +41,12 @@ fn recurse(
                     }
                 }
                 if !already_visited {
-                    stack.push(*next_node);
-                    recurse(network, lut, stack);
-                    stack.pop();
+                    recurse(network, lut, stack, *next_node);
                 }
             }
         }
     }
+    stack.pop();
 }
 
 fn main() {
@@ -69,14 +68,15 @@ fn main() {
         network.entry(a.0).or_insert(Vec::new()).push(b.0);
         network.entry(b.0).or_insert(Vec::new()).push(a.0);
     }
-    println!("{:?}", network);
-    for entry in &lut {
-        println!("{:?}", entry);
+    if false {
+        println!("{:?}", network);
+        for entry in &lut {
+            println!("{:?}", entry);
+        }
+        println!("{:?}", start_index);
     }
     if let Some(index) = start_index {
         let mut stack: Vec<u32> = Vec::new();
-        stack.push(index);
-        recurse(&network, &lut, &mut stack);
+        recurse(&network, &lut, &mut stack, index);
     }
-    println!("{:?}", start_index);
 }
