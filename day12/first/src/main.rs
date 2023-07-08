@@ -24,19 +24,30 @@ fn recurse(
             let (_, can_revisit, end) = lut[*next_node as usize];
 
             if end {
-                for item in &stack {
-                    print!("{},", lut[item as usize].0)
+                for index in 0..stack.len() {
+                    print!("{},", lut[stack[index] as usize].0)
                 }
-                println!();
+                println!("end");
             } else if can_revisit {
                 stack.push(*next_node);
                 recurse(network, lut, stack);
+                stack.pop();
             } else {
-                println!();
+                let mut already_visited = false;
+                for index in 0..stack.len() {
+                    if stack[index] == *next_node {
+                        already_visited = true;
+                        break;
+                    }
+                }
+                if !already_visited {
+                    stack.push(*next_node);
+                    recurse(network, lut, stack);
+                    stack.pop();
+                }
             }
         }
     }
-    panic!();
 }
 
 fn main() {
