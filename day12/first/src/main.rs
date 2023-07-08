@@ -2,10 +2,7 @@ use std::collections::HashMap;
 use std::io::{self, BufRead};
 
 fn add_lut(lut: &mut Vec<(String, bool, bool)>, item: &str) -> (u32, bool) {
-    let caps = match item.chars().nth(0).unwrap() {
-        'A'..='Z' => true,
-        _ => false,
-    };
+    let caps = item.chars().next().unwrap().is_ascii_uppercase();
     let start = item == "start";
     let end = item == "end";
     if let Some(index) = lut.iter().position(|r| r.0 == item) {
@@ -50,7 +47,7 @@ fn main() {
 
     for line in stdin.lock().lines() {
         let line = line.expect("Could not read line from standard in");
-        let nodes: Vec<&str> = line.split("-").collect();
+        let nodes: Vec<&str> = line.split('-').collect();
         let a = add_lut(&mut lut, nodes[0]);
         let b = add_lut(&mut lut, nodes[1]);
 
@@ -62,8 +59,8 @@ fn main() {
         network.entry(b.0).or_insert(Vec::new()).push(a.0);
     }
     println!("{:?}", network);
-    for index in 0..lut.len() {
-        println!("{:?}", lut[index])
+    for entry in &lut {
+        println!("{:?}", entry);
     }
     if let Some(index) = start_index {
         let mut stack: Vec<u32> = Vec::new();
