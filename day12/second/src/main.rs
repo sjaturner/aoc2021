@@ -1,37 +1,39 @@
 use std::collections::HashMap;
 use std::io::{self, BufRead};
 
-fn add_lut(lut: &mut Vec<(String, bool, bool)>, item: &str) -> (u32, bool) {
+fn add_lut(lut: &mut Vec<(String, bool, bool, bool)>, item: &str) -> (u32, bool) {
     let caps = item.chars().next().unwrap().is_ascii_uppercase();
     let start = item == "start";
     let end = item == "end";
     if let Some(index) = lut.iter().position(|r| r.0 == item) {
         (index as u32, start)
     } else {
-        lut.push((item.to_string(), caps, end));
+        lut.push((item.to_string(), caps, end, start));
         (lut.len() as u32 - 1, start)
     }
 }
 
 fn recurse(
     network: &HashMap<u32, Vec<u32>>,
-    lut: &Vec<(String, bool, bool)>,
+    lut: &Vec<(String, bool, bool, bool)>,
     stack: &mut Vec<u32>,
     node_index: u32,
+    permit: bool,
 ) {
     stack.push(node_index);
     let top_node = stack[stack.len() - 1];
     if let Some(list) = network.get(&top_node) {
         for next_node in list {
-            let (_, can_revisit, end) = lut[*next_node as usize];
+            let (_, can_revisit, end, start) = lut[*next_node as usize];
 
-            if end {
+            if start {
+            } else if end {
                 for index in 0..stack.len() {
                     print!("{},", lut[stack[index] as usize].0)
                 }
                 println!("end");
             } else if can_revisit {
-                recurse(network, lut, stack, *next_node);
+                recurse(network, lut, stack, *next_node, permit);
             } else {
                 let mut already_visited = false;
                 for index in 0..stack.len() {
@@ -40,8 +42,12 @@ fn recurse(
                         break;
                     }
                 }
-                if !already_visited {
-                    recurse(network, lut, stack, *next_node);
+                if already_visited {
+                    if permit {
+                        recurse(network, lut, stack, *next_node, false);
+                    }
+                } else {
+                    recurse(network, lut, stack, *next_node, permit);
                 }
             }
         }
@@ -52,7 +58,7 @@ fn recurse(
 fn main() {
     let stdin = io::stdin();
     let mut network: HashMap<u32, Vec<u32>> = HashMap::new();
-    let mut lut: Vec<(String, bool, bool)> = Vec::new();
+    let mut lut: Vec<(String, bool, bool, bool)> = Vec::new();
     let mut start_index: Option<u32> = None;
 
     for line in stdin.lock().lines() {
@@ -77,6 +83,6 @@ fn main() {
     }
     if let Some(index) = start_index {
         let mut stack: Vec<u32> = Vec::new();
-        recurse(&network, &lut, &mut stack, index);
+        recurse(&network, &lut, &mut stack, index, true);
     }
 }
