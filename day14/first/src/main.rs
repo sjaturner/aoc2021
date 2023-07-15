@@ -61,10 +61,11 @@ fn main() {
         next.push(pairs.last().unwrap().chars.1);
         seed = next.clone();
     }
-    println!("{:?}", seed.len());
     let mut collate: HashMap<char, u64> = HashMap::new();
     for character in seed {
         *collate.entry(character).or_insert(0) += 1;
     }
-    println!("{:?}", collate);
+    let min: u64 = collate.clone().into_iter().map(|(_, val)| val).min().unwrap();
+    let max: u64 = collate.clone().into_iter().map(|(_, val)| val).max().unwrap();
+    println!("{:?}", max - min);
 }
