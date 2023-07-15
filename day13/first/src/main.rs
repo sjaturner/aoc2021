@@ -19,12 +19,19 @@ fn folder(dots: &HashSet<(i32, i32)>, xy: char, line: i32) -> HashSet<(i32, i32)
 }
 
 fn render(dots: &HashSet<(i32, i32)>) {
-    let mut plot: Vec<(i32, i32)> = dots.iter().map(|&(x, y)| (x, y)).collect();
-    plot.sort();
-    println!("{:?}", plot);
+    let x_max = dots.iter().map(|&(x, _)| x).max().unwrap();
+    let y_max = dots.iter().map(|&(_, y)| y).max().unwrap();
+
+    for y in 0..=y_max {
+        for x in 0..=x_max {
+            print!("{}", if dots.contains(&(x, y)) { '#' } else { ' ' });
+        }
+        println!();
+    }
 }
 
 fn main() {
+    let first_part = false;
     let stdin = io::stdin();
     let mut dots: HashSet<(i32, i32)> = HashSet::new();
     let re = Regex::new(r"^fold along\s*([xy])\s*=\s*([0-9]*)").unwrap();
@@ -41,8 +48,12 @@ fn main() {
                     f1.chars().nth(0).unwrap(),
                     f2.parse::<i32>().unwrap(),
                 );
-                render(&dots);
                 folded = true;
+            }
+            if first_part {
+                if folded {
+                    break;
+                }
             }
             if !folded {
                 let pos: Vec<i32> = line
@@ -54,5 +65,9 @@ fn main() {
         }
     }
 
-    println!("{:?}", dots);
+    if first_part {
+        println!("{:?}", dots.len());
+    } else {
+        render(&dots);
+    }
 }
