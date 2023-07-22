@@ -16,34 +16,58 @@ impl Default for Tally {
     }
 }
 
+fn ci(c: char) -> usize {
+    c as usize - 'A' as usize
+}
+
 impl Tally {
     fn inc(&mut self, c: char) {
-        self.letters[c as usize] += 1;
+        self.letters[ci(c)] += 1;
     }
 }
 
 const LETTERS: usize = 'Z' as usize - 'A' as usize;
 const DEPTH: usize = 20;
 
+fn add(a: &Tally, b: &Tally) -> Tally {
+    let mut ret = Tally::default();
+
+    for index in 0..LETTERS {
+        ret.letters[index] = a.letters[index] + b.letters[index];
+    }
+    ret
+}
+
 fn recurse(
     lut: &HashMap<(char, char), char>,
     recur: i32,
-    memo: &mut [[[Tally; LETTERS]; LETTERS]; DEPTH],
+    memo: &mut [[[Option<Tally>; LETTERS]; LETTERS]; DEPTH],
     l: char,
     r: char,
-) {
-    if let Some(insertion) = lut.get(&(l, r)) {
-        let m = *insertion;
-
-        if recur > 0 {
-            recurse(lut, recur - 1, memo, l, m);
-            recurse(lut, recur - 1, memo, m, r);
-        } else {
-            print!("{} ", l);
-            print!("{} ", m);
-        }
+) -> Tally {
+    if let Some(tally) = memo[ci(l)][ci(r)][recur as usize] {
+        return tally;
     } else {
-        assert!(true);
+        if let Some(insertion) = lut.get(&(l, r)) {
+            let m = *insertion;
+
+            if recur > 0 {
+                let tally_a = recurse(lut, recur - 1, memo, l, m);
+                let tally_b = recurse(lut, recur - 1, memo, m, r);
+                let ret = add(&tally_a, &tally_b);
+                memo[ci(l)][ci(r)][recur as usize] = Some(ret);
+                ret
+            } else {
+                let mut ret = Tally::default();
+                ret.inc(l);
+                ret.inc(m);
+                print!("{} ", l);
+                print!("{} ", m);
+                ret
+            }
+        } else {
+            exit(0);
+        }
     }
 }
 
@@ -51,8 +75,8 @@ fn main() {
     let stdin = io::stdin();
     let mut seed: Vec<char> = Vec::new();
     let mut lut: HashMap<(char, char), char> = HashMap::new();
-    let mut memo: [[[Tally; LETTERS]; LETTERS]; DEPTH] =
-        [[[Tally::default(); LETTERS]; LETTERS]; DEPTH];
+    let mut memo: [[[Option<Tally>; LETTERS]; LETTERS]; DEPTH] =
+        [[[None; LETTERS]; LETTERS]; DEPTH];
 
     let args: Vec<_> = env::args().collect();
 
