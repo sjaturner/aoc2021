@@ -5,13 +5,13 @@ use std::process::exit;
 
 #[derive(Copy, Clone)]
 struct Tally {
-    letters: [u64; 'Z' as usize - 'A' as usize],
+    letters: [u64; LETTERS],
 }
 
 impl Default for Tally {
     fn default() -> Tally {
         Tally {
-            letters: [0; 'Z' as usize - 'A' as usize],
+            letters: [0; LETTERS],
         }
     }
 }
@@ -22,10 +22,13 @@ impl Tally {
     }
 }
 
+const LETTERS: usize = 'Z' as usize - 'A' as usize;
+const DEPTH: usize = 20;
+
 fn recurse(
     lut: &HashMap<(char, char), char>,
     recur: i32,
-    memo: &mut [[Tally; 'Z' as usize - 'A' as usize]; 'Z' as usize - 'A' as usize],
+    memo: &mut [[[Tally; LETTERS]; LETTERS]; DEPTH],
     l: char,
     r: char,
 ) {
@@ -44,12 +47,12 @@ fn recurse(
     }
 }
 
-const LETTERS: usize = 'Z' as usize - 'A' as usize;
 fn main() {
     let stdin = io::stdin();
     let mut seed: Vec<char> = Vec::new();
     let mut lut: HashMap<(char, char), char> = HashMap::new();
-    let mut memo: [[Tally; LETTERS]; LETTERS] = [[Tally::default(); LETTERS]; LETTERS];
+    let mut memo: [[[Tally; LETTERS]; LETTERS]; DEPTH] =
+        [[[Tally::default(); LETTERS]; LETTERS]; DEPTH];
 
     let args: Vec<_> = env::args().collect();
 
@@ -58,6 +61,10 @@ fn main() {
     }
 
     let depth = args[1].parse::<i32>().unwrap();
+
+    if depth as usize >= DEPTH {
+        exit(0);
+    }
 
     for (index, line) in stdin
         .lock()
