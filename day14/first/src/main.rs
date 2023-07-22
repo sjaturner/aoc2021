@@ -1,5 +1,7 @@
 use std::collections::HashMap;
+use std::env;
 use std::io::{self, BufRead};
+use std::process::exit;
 
 #[derive(Debug)]
 struct Pair {
@@ -11,6 +13,14 @@ fn main() {
     let stdin = io::stdin();
     let mut seed: Vec<char> = Vec::new();
     let mut lut: HashMap<(char, char), char> = HashMap::new();
+
+    let args: Vec<_> = env::args().collect();
+
+    if args.len() != 2 {
+        exit(0);
+    }
+
+    let goes = args[1].parse::<i32>().unwrap();
 
     for (index, line) in stdin
         .lock()
@@ -32,7 +42,7 @@ fn main() {
         }
     }
 
-    for _ in 0..10 {
+    for _ in 0..goes {
         let mut pairs: Vec<Pair> = Vec::new();
 
         for index in 0..seed.len() - 1 {
@@ -60,12 +70,25 @@ fn main() {
 
         next.push(pairs.last().unwrap().chars.1);
         seed = next.clone();
+        println!("{:?}", seed);
     }
     let mut collate: HashMap<char, u64> = HashMap::new();
     for character in seed {
         *collate.entry(character).or_insert(0) += 1;
     }
-    let min: u64 = collate.clone().into_iter().map(|(_, val)| val).min().unwrap();
-    let max: u64 = collate.clone().into_iter().map(|(_, val)| val).max().unwrap();
+    println!("{:?}", collate);
+
+    let min: u64 = collate
+        .clone()
+        .into_iter()
+        .map(|(_, val)| val)
+        .min()
+        .unwrap();
+    let max: u64 = collate
+        .clone()
+        .into_iter()
+        .map(|(_, val)| val)
+        .max()
+        .unwrap();
     println!("{:?}", max - min);
 }
