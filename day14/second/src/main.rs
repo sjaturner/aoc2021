@@ -3,7 +3,10 @@ use std::env;
 use std::io::{self, BufRead};
 use std::process::exit;
 
-#[derive(Copy, Clone)]
+const LETTERS: usize = 'Z' as usize - 'A' as usize;
+const DEPTH: usize = 60;
+
+#[derive(Copy, Clone, Debug)]
 struct Tally {
     letters: [u64; LETTERS],
 }
@@ -24,10 +27,15 @@ impl Tally {
     fn inc(&mut self, c: char) {
         self.letters[ci(c)] += 1;
     }
+    fn dump(&self) {
+        for index in 0..LETTERS {
+            let val = self.letters[index as usize];
+            if val != 0 {
+                println!("{} {}", ('A' as u8 + index as u8) as char, val);
+            }
+        }
+    }
 }
-
-const LETTERS: usize = 'Z' as usize - 'A' as usize;
-const DEPTH: usize = 20;
 
 fn add(a: &Tally, b: &Tally) -> Tally {
     let mut ret = Tally::default();
@@ -45,7 +53,7 @@ fn recurse(
     l: char,
     r: char,
 ) -> Tally {
-    if let Some(tally) = memo[ci(l)][ci(r)][recur as usize] {
+    if let Some(tally) = memo[recur as usize][ci(l)][ci(r)] {
         return tally;
     } else {
         if let Some(insertion) = lut.get(&(l, r)) {
@@ -55,14 +63,16 @@ fn recurse(
                 let tally_a = recurse(lut, recur - 1, memo, l, m);
                 let tally_b = recurse(lut, recur - 1, memo, m, r);
                 let ret = add(&tally_a, &tally_b);
-                memo[ci(l)][ci(r)][recur as usize] = Some(ret);
+                memo[recur as usize][ci(l)][ci(r)] = Some(ret);
                 ret
             } else {
                 let mut ret = Tally::default();
                 ret.inc(l);
                 ret.inc(m);
-                print!("{} ", l);
-                print!("{} ", m);
+                if false {
+                    print!("{} ", l);
+                    print!("{} ", m);
+                }
                 ret
             }
         } else {
@@ -111,7 +121,15 @@ fn main() {
     }
 
     if depth > 0 {
-        recurse(&lut, depth - 1, &mut memo, 'N', 'N');
+        let mut total = Tally::default();
+
+        for index in 0..seed.len() - 1 {
+            let tally = recurse(&lut, depth - 1, &mut memo, seed[index], seed[index + 1]);
+            total = add(&total, &tally);
+        }
+        println!();
+        total.inc(seed[seed.len() - 1]);
+        total.dump();
     }
     println!();
 }
