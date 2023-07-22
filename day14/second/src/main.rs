@@ -9,6 +9,22 @@ struct Pair {
     insert: Option<char>,
 }
 
+fn recurse(lut: &HashMap<(char, char), char>, recur: i32, l: char, r: char) {
+    if let Some(insertion) = lut.get(&(l, r)) {
+        let m = *insertion;
+
+        if recur > 0 {
+            recurse(lut, recur - 1, l, m);
+            recurse(lut, recur - 1, m, r);
+        } else {
+            print!("{} ", l);
+            print!("{} ", m);
+        }
+    } else {
+        assert!(true);
+    }
+}
+
 fn main() {
     let stdin = io::stdin();
     let mut seed: Vec<char> = Vec::new();
@@ -20,7 +36,7 @@ fn main() {
         exit(0);
     }
 
-    let goes = args[1].parse::<u32>().unwrap();
+    let depth = args[1].parse::<i32>().unwrap();
 
     for (index, line) in stdin
         .lock()
@@ -42,51 +58,8 @@ fn main() {
         }
     }
 
-    for _ in 0..goes {
-        let mut pairs: Vec<Pair> = Vec::new();
-
-        for index in 0..seed.len() - 1 {
-            pairs.push(Pair {
-                chars: (seed[index], seed[index + 1]),
-                insert: None,
-            })
-        }
-
-        for pair in pairs.iter_mut() {
-            if lut.contains_key(&pair.chars) {
-                if let Some(insertion) = lut.get(&pair.chars) {
-                    pair.insert = Some(*insertion);
-                }
-            }
-        }
-
-        let mut next: Vec<char> = Vec::new();
-        for pair in &pairs {
-            next.push(pair.chars.0);
-            if let Some(insert) = pair.insert {
-                next.push(insert);
-            }
-        }
-
-        next.push(pairs.last().unwrap().chars.1);
-        seed = next.clone();
-        println!("{:?}", seed);
+    if depth > 0 {
+        recurse(&lut, depth - 1, 'N', 'N');
     }
-    let mut collate: HashMap<char, u64> = HashMap::new();
-    for character in seed {
-        *collate.entry(character).or_insert(0) += 1;
-    }
-    let min: u64 = collate
-        .clone()
-        .into_iter()
-        .map(|(_, val)| val)
-        .min()
-        .unwrap();
-    let max: u64 = collate
-        .clone()
-        .into_iter()
-        .map(|(_, val)| val)
-        .max()
-        .unwrap();
-    println!("{:?}", max - min);
+    println!();
 }
