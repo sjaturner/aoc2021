@@ -40,66 +40,6 @@ impl Cave {
     fn get(&self, row: i32, col: i32) -> i32 {
         self.cells[(row * self.cols) as usize + col as usize]
     }
-    fn set(&mut self, row: i32, col: i32, val: i32) {
-        self.cells[(row * self.cols) as usize + col as usize] = val;
-    }
-    fn blank(&mut self, fill: i32) -> Cave {
-        let mut ret = Cave {
-            rows: self.rows,
-            cols: self.cols,
-            cells: Vec::new(),
-        };
-        for _ in 0..self.rows * self.cols {
-            ret.cells.push(fill);
-        }
-        ret
-    }
-    fn add(&mut self, vals: &Cave, count: &mut u32) -> Option<Cave> {
-        let mut ret = self.blank(0);
-        let mut flashes = false;
-        for row in 0..self.rows {
-            for col in 0..self.cols {
-                let before = self.get(row, col);
-                let after = before + vals.get(row, col);
-
-                if before < 10 && after >= 10 {
-                    flashes = true;
-                    *count += 1;
-
-                    for delta_row in -1..=1 {
-                        for delta_col in -1..=1 {
-                            if delta_row == 0 && delta_col == 0 {
-                                continue;
-                            }
-
-                            let scan_row = row + delta_row;
-                            let scan_col = col + delta_col;
-                            if scan_row >= 0 && scan_row < self.rows {
-                                if scan_col >= 0 && scan_col < self.cols {
-                                    ret.set(scan_row, scan_col, ret.get(scan_row, scan_col) + 1);
-                                }
-                            }
-                        }
-                    }
-                }
-                self.set(row, col, after);
-            }
-        }
-        if flashes {
-            Some(ret)
-        } else {
-            None
-        }
-    }
-    fn reset(&mut self) {
-        for row in 0..self.rows {
-            for col in 0..self.cols {
-                if self.get(row, col) >= 10 {
-                    self.set(row, col, 0);
-                }
-            }
-        }
-    }
 }
 
 impl fmt::Debug for Cave {
@@ -115,40 +55,7 @@ impl fmt::Debug for Cave {
 }
 
 fn main() {
-    let mut cave = Cave::load();
+    let cave = Cave::load();
 
-    let goes = 1000;
-    let mut count = 0;
-
-    for go in 1..=goes {
-        let mut pump = cave.blank(1);
-
-        loop {
-            if let Some(foo) = cave.add(&pump, &mut count) {
-                pump = foo;
-                if false {
-                    println!("{:?}", pump);
-                }
-            } else {
-                break;
-            }
-        }
-        cave.reset();
-        println!("{:?}", cave);
-
-        let mut all_zeroes = true;
-        for row in 0..cave.rows {
-            for col in 0..cave.cols {
-                if cave.get(row, col) != 0 {
-                    all_zeroes = false;
-                }
-            }
-        }
-
-        if all_zeroes {
-            println!("All zeros at {go}");
-            break;
-        }
-    }
-    println!("{count}");
+    println!("{:?}", cave);
 }
