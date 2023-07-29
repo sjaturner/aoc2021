@@ -99,8 +99,9 @@ fn main() {
         }
     }
 
+    cells.get_mut(&(0, 0)).unwrap().risk_total = Some(0);
+
     let mut done: HashSet<(i32, i32)> = HashSet::new();
-    let mut full: HashSet<(i32, i32)> = HashSet::new();
 
     done.insert((0, 0));
 
@@ -110,32 +111,40 @@ fn main() {
     let mut from: Option<(i32, i32)> = None;
     let mut best: Option<(i32, i32)> = None;
     let mut risk: Option<i32> = None;
-    for cell_pos in done {
-        if full.contains(&cell_pos) {
-            continue;
-        }
+    for _ in 0..10 {
+        for cell_pos in &done {
+            let curr = cells.get(cell_pos).unwrap();
 
-        let curr = cells.get(&cell_pos).unwrap();
-
-        for neighbour in curr.neighbours {
-            if let Some(neighbour_pos) = neighbour {
-                if let Some(neighbour) = cells.get(&neighbour_pos) {
-                    if let Some(risk_total) = curr.risk_total {
-                        let neighbour_risk = risk_total + neighbour.risk;
-                        if let Some(lowest_risk) = risk {
-                            if neighbour_risk < lowest_risk {
-                                risk = Some(neighbour_risk);
-                                best = Some(neighbour_pos);
-                                from = Some(cell_pos);
+            if let Some(_) = curr.risk_total {
+                for neighbour in curr.neighbours {
+                    if let Some(neighbour_pos) = neighbour {
+                        if let Some(neighbour) = cells.get(&neighbour_pos) {
+                            if let Some(risk_total) = curr.risk_total {
+                                let neighbour_risk = risk_total + neighbour.risk;
+                                if let Some(lowest_risk) = risk {
+                                    if neighbour_risk < lowest_risk {
+                                        risk = Some(neighbour_risk);
+                                        best = Some(neighbour_pos);
+                                        from = Some(*cell_pos);
+                                    }
+                                } else {
+                                    risk = Some(neighbour_risk);
+                                    best = Some(neighbour_pos);
+                                    from = Some(*cell_pos);
+                                }
                             }
-                        } else {
-                            risk = Some(neighbour_risk);
-                            best = Some(neighbour_pos);
-                            from = Some(cell_pos);
                         }
                     }
                 }
             }
+        }
+
+        println!("best: {:?}", best);
+        if let Some(best) = best {
+            let mut cell = cells.get_mut(&best).unwrap();
+            cell.from = from;
+            cell.risk_total = risk;
+            done.insert(best);
         }
     }
 }
