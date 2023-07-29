@@ -102,6 +102,7 @@ fn main() {
     cells.get_mut(&(0, 0)).unwrap().risk_total = Some(0);
 
     let mut done: HashSet<(i32, i32)> = HashSet::new();
+    let mut fini: HashSet<(i32, i32)> = HashSet::new();
 
     done.insert((0, 0));
 
@@ -113,21 +114,25 @@ fn main() {
         let mut best: Option<(i32, i32)> = None;
         let mut risk: Option<i32> = None;
         for cell_pos in &done {
+            if fini.contains(cell_pos) {
+                continue;
+            }
+
             let curr = cells.get(cell_pos).unwrap();
+
+            let mut count_neighbours = 0;
+            let mut completed_neighbours = 0;
 
             if let Some(_) = curr.risk_total {
                 for neighbour in curr.neighbours {
                     if let Some(neighbour_pos) = neighbour {
+                        count_neighbours += 1;
                         if let Some(neighbour) = cells.get(&neighbour_pos) {
-                            if false {
-                                println!(
-                                    "neighbour_pos: {:?} neighbour: {:?}",
-                                    neighbour_pos, neighbour
-                                );
-                            }
                             if neighbour.risk_total != None {
+                                completed_neighbours += 1;
                                 continue;
                             }
+
                             if let Some(risk_total) = curr.risk_total {
                                 let neighbour_risk = risk_total + neighbour.risk;
                                 if let Some(lowest_risk) = risk {
@@ -145,6 +150,10 @@ fn main() {
                         }
                     }
                 }
+            }
+
+            if count_neighbours == completed_neighbours {
+                fini.insert(*cell_pos);
             }
         }
 
