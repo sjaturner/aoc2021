@@ -50,7 +50,7 @@ impl fmt::Debug for Cave {
             for col in 0..self.cols {
                 let _ = write!(f, "{}", self.get(row, col));
             }
-            writeln!(f, "\n")?;
+            writeln!(f, "")?;
         }
         Ok(())
     }
@@ -108,20 +108,26 @@ fn main() {
     println!("{:?}", cave);
     println!("{:?}", cells);
 
-    let mut from: Option<(i32, i32)> = None;
-    let mut best: Option<(i32, i32)> = None;
-    let mut risk: Option<i32> = None;
-    for _ in 0..10 {
+    loop {
+        let mut from: Option<(i32, i32)> = None;
+        let mut best: Option<(i32, i32)> = None;
+        let mut risk: Option<i32> = None;
         for cell_pos in &done {
             let curr = cells.get(cell_pos).unwrap();
 
             if let Some(_) = curr.risk_total {
                 for neighbour in curr.neighbours {
-                    if neighbour.risk_total != None {
-                        continue;
-                    }
                     if let Some(neighbour_pos) = neighbour {
                         if let Some(neighbour) = cells.get(&neighbour_pos) {
+                            if false {
+                                println!(
+                                    "neighbour_pos: {:?} neighbour: {:?}",
+                                    neighbour_pos, neighbour
+                                );
+                            }
+                            if neighbour.risk_total != None {
+                                continue;
+                            }
                             if let Some(risk_total) = curr.risk_total {
                                 let neighbour_risk = risk_total + neighbour.risk;
                                 if let Some(lowest_risk) = risk {
@@ -142,12 +148,17 @@ fn main() {
             }
         }
 
-        println!("best: {:?}", best);
+        println!("best: {:?} {:?}", best, risk);
+
         if let Some(best) = best {
             let mut cell = cells.get_mut(&best).unwrap();
             cell.from = from;
             cell.risk_total = risk;
             done.insert(best);
+        }
+
+        if best == Some((cave.rows - 1, cave.cols - 1)) {
+            break;
         }
     }
 }
