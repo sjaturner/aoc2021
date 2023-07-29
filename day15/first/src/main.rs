@@ -117,6 +117,9 @@ fn main() {
 
             if let Some(_) = curr.risk_total {
                 for neighbour in curr.neighbours {
+                    if neighbour.risk_total != None {
+                        continue;
+                    }
                     if let Some(neighbour_pos) = neighbour {
                         if let Some(neighbour) = cells.get(&neighbour_pos) {
                             if let Some(risk_total) = curr.risk_total {
