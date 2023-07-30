@@ -48,11 +48,9 @@ fn literal(bits: &[u32]) -> u32 {
         let cont = bits[offs] == 1;
         offs += 1;
         ret |= tobin(&bits[offs..offs + 4]);
-
         if !cont {
             break;
         }
-
         ret <<= 4;
         offs += 4;
     }
@@ -76,7 +74,6 @@ fn process(bits: &Vec<u32>, pos: usize, depth: u32) {
             // Operator
             let ltid = bits[pos];
             pos += 1;
-
             match ltid {
                 0 => {
                     let total_length_of_subpackets = tobin(&bits[pos..pos + 15]);
