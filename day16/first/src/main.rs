@@ -24,11 +24,39 @@ fn line_to_bitstring(line: &str) -> Vec<u32> {
     ret
 }
 
+fn tobin(bits: &[u32]) -> u32 {
+    let mut ret: u32 = 0;
+    let mut count = bits.len();
+    let mut index = 0;
+
+    loop {
+        ret |= bits[index];
+        count -= 1;
+        if count <= 0 {
+            break;
+        }
+        ret <<= 1;
+        index += 1;
+    }
+    return ret;
+}
+
+fn process(bits: &Vec<u32>, pos: usize, depth: u32) {
+    let mut pos = pos;
+    let ver = tobin(&bits[pos..pos + 3]);
+    pos += 3;
+    let typ = tobin(&bits[pos..pos + 3]);
+    println!("{}", ver);
+    println!("{}", typ);
+}
+
 fn main() {
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
         let line = line.expect("Could not read line from standard in");
+        let bitstring = line_to_bitstring(&line);
         println!("{line}");
         println!("{:?}", line_to_bitstring(&line));
+        process(&bitstring, 0, 0);
     }
 }
