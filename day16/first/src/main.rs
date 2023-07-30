@@ -69,9 +69,28 @@ fn process(bits: &Vec<u32>, pos: usize, depth: u32) {
     println!("{}", typ);
     match typ {
         4 => {
+            // Literal
             println!("literal: {}", literal(&bits[pos..]));
         }
-        _ => {}
+        _ => {
+            // Operator
+            let ltid = bits[pos];
+            pos += 1;
+
+            match ltid {
+                0 => {
+                    let total_length_of_subpackets = tobin(&bits[pos..pos + 15]);
+                    pos += 15;
+                    println!("{}", total_length_of_subpackets);
+                }
+                1 => {
+                    let total_number_of_subpackets = tobin(&bits[pos..pos + 11]);
+                    pos += 11;
+                    println!("{}", total_number_of_subpackets);
+                }
+                _ => todo!(),
+            }
+        }
     }
 }
 
