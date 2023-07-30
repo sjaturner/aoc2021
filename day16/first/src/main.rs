@@ -41,13 +41,38 @@ fn tobin(bits: &[u32]) -> u32 {
     return ret;
 }
 
+fn literal(bits: &[u32]) -> u32 {
+    let mut offs = 0;
+    let mut ret = 0;
+    loop {
+        let cont = bits[offs] == 1;
+        offs += 1;
+        ret |= tobin(&bits[offs..offs + 4]);
+
+        if !cont {
+            break;
+        }
+
+        ret <<= 4;
+        offs += 4;
+    }
+    ret
+}
+
 fn process(bits: &Vec<u32>, pos: usize, depth: u32) {
     let mut pos = pos;
     let ver = tobin(&bits[pos..pos + 3]);
     pos += 3;
     let typ = tobin(&bits[pos..pos + 3]);
+    pos += 3;
     println!("{}", ver);
     println!("{}", typ);
+    match typ {
+        4 => {
+            println!("literal: {}", literal(&bits[pos..]));
+        }
+        _ => {}
+    }
 }
 
 fn main() {
