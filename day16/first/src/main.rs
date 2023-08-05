@@ -61,14 +61,24 @@ fn literal(chunk: &mut Chunk) -> u32 {
     ret
 }
 
-fn process(chunk: &mut Chunk, _depth: u32) {
+fn indent(depth: u32) {
+    for _ in 0..depth {
+        print!("    ");
+    }
+}
+
+fn process(chunk: &mut Chunk, depth: u32, ver_sum: &mut u32) {
     let ver = tobin(chunk, 3);
     let typ = tobin(chunk, 3);
-    println!("{}", ver);
-    println!("{}", typ);
+    indent(depth);
+    println!("ver: {}", ver);
+    *ver_sum += ver;
+    indent(depth);
+    println!("typ: {}", typ);
     match typ {
         4 => {
             // Literal
+            indent(depth);
             println!("literal: {}", literal(chunk));
         }
         _ => {
@@ -76,12 +86,23 @@ fn process(chunk: &mut Chunk, _depth: u32) {
             let ltid = tobin(chunk, 1);
             match ltid {
                 0 => {
-                    let total_length_of_subpackets = tobin(chunk, 15);
+                    let offs = chunk.offs;
+                    let total_length_of_subpackets = tobin(chunk, 15) as usize;
+                    indent(depth);
                     println!("{}", total_length_of_subpackets);
+
+                    while chunk.offs < offs + total_length_of_subpackets {
+                        process(chunk, depth + 1, ver_sum);
+                    }
                 }
                 1 => {
                     let total_number_of_subpackets = tobin(chunk, 11);
+                    indent(depth);
                     println!("{}", total_number_of_subpackets);
+
+                    for _ in 0..total_number_of_subpackets {
+                        process(chunk, depth + 1, ver_sum);
+                    }
                 }
                 _ => todo!(),
             }
@@ -96,7 +117,7 @@ fn main() {
         let bitstring = line_to_bitstring(&line);
         println!("{line}");
         println!("{:?}", line_to_bitstring(&line));
-        //      process(&bitstring, 0, 0);
+        let mut ver_sum = 0;
         process(
             &mut Chunk {
                 bits: &bitstring,
@@ -104,6 +125,8 @@ fn main() {
                 rems: bitstring.len() as i32,
             },
             0,
+            &mut ver_sum,
         );
+        println!("ver_sum: {ver_sum}");
     }
 }
