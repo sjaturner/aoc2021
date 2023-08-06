@@ -24,6 +24,7 @@ fn line_to_bitstring(line: &str) -> Vec<u32> {
     ret
 }
 
+#[derive(Copy, Clone)]
 struct Chunk<'a> {
     bits: &'a [u32],
     offs: usize,
@@ -89,15 +90,19 @@ fn process(chunk: &mut Chunk, depth: u32, ver_sum: &mut u32) -> u32 {
             let ltid = tobin(chunk, 1);
             match ltid {
                 0 => {
-                    let offs = chunk.offs;
                     let total_length_of_subpackets = tobin(chunk, 15) as usize;
                     indent(depth);
                     println!("total_length_of_subpackets: {}", total_length_of_subpackets);
+                    {
+                        let mut chunk = chunk.clone();
+                        chunk.rems = total_length_of_subpackets as i32;
 
-                    while chunk.offs < offs + total_length_of_subpackets {
-                        sub_packets.push(process(chunk, depth + 1, ver_sum));
-                        println!("chunk.offs: {} offs: {offs} total_length_of_subpackets: {total_length_of_subpackets}", chunk.offs);
+                        while chunk.rems > 0 {
+                            sub_packets.push(process(&mut chunk, depth + 1, ver_sum));
+                        }
                     }
+                    chunk.rems -= total_length_of_subpackets as i32;
+                    chunk.offs += total_length_of_subpackets;
                 }
                 1 => {
                     let total_number_of_subpackets = tobin(chunk, 11);
