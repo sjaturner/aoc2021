@@ -67,7 +67,7 @@ fn indent(depth: u32) {
     }
 }
 
-fn process(chunk: &mut Chunk, depth: u32, ver_sum: &mut u32) {
+fn process(chunk: &mut Chunk, depth: u32, ver_sum: &mut u32) -> u32 {
     let ver = tobin(chunk, 3);
     let typ = tobin(chunk, 3);
     indent(depth);
@@ -75,11 +75,14 @@ fn process(chunk: &mut Chunk, depth: u32, ver_sum: &mut u32) {
     *ver_sum += ver;
     indent(depth);
     println!("typ: {}", typ);
+    let mut sub_packets = Vec::new();
     match typ {
         4 => {
             // Literal
             indent(depth);
-            println!("literal: {}", literal(chunk));
+            let val = literal(chunk);
+            println!("literal: {}", val);
+            return val as u32;
         }
         _ => {
             // Operator
@@ -89,24 +92,83 @@ fn process(chunk: &mut Chunk, depth: u32, ver_sum: &mut u32) {
                     let offs = chunk.offs;
                     let total_length_of_subpackets = tobin(chunk, 15) as usize;
                     indent(depth);
-                    println!("{}", total_length_of_subpackets);
+                    println!("total_length_of_subpackets: {}", total_length_of_subpackets);
 
                     while chunk.offs < offs + total_length_of_subpackets {
-                        process(chunk, depth + 1, ver_sum);
+                        sub_packets.push(process(chunk, depth + 1, ver_sum));
+                        println!("chunk.offs: {} offs: {offs} total_length_of_subpackets: {total_length_of_subpackets}", chunk.offs);
                     }
                 }
                 1 => {
                     let total_number_of_subpackets = tobin(chunk, 11);
                     indent(depth);
-                    println!("{}", total_number_of_subpackets);
+                    println!("total_number_of_subpackets: {}", total_number_of_subpackets);
 
                     for _ in 0..total_number_of_subpackets {
-                        process(chunk, depth + 1, ver_sum);
+                        sub_packets.push(process(chunk, depth + 1, ver_sum));
                     }
                 }
                 _ => todo!(),
             }
         }
+    }
+
+    match typ {
+        0 => {
+            // Sum
+            indent(depth);
+            println!("Sum");
+            return sub_packets.iter().sum();
+        }
+        1 => {
+            // Product
+            indent(depth);
+            println!("Product");
+            return sub_packets.iter().product();
+        }
+        2 => {
+            // Minimum
+            indent(depth);
+            println!("Minimum");
+            return *sub_packets.iter().min().unwrap();
+        }
+        3 => {
+            // Maximum
+            indent(depth);
+            println!("Maximum");
+            return *sub_packets.iter().max().unwrap();
+        }
+        5 => {
+            // Greater than
+            indent(depth);
+            println!("Greater than");
+            if sub_packets[0] > sub_packets[1] {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        6 => {
+            // Less than
+            indent(depth);
+            println!("Less than");
+            if sub_packets[0] < sub_packets[1] {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        7 => {
+            // Equal to
+            indent(depth);
+            println!("Equal to");
+            if sub_packets[0] == sub_packets[1] {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        _ => todo!(),
     }
 }
 
@@ -118,7 +180,7 @@ fn main() {
         println!("{line}");
         println!("{:?}", line_to_bitstring(&line));
         let mut ver_sum = 0;
-        process(
+        let val = process(
             &mut Chunk {
                 bits: &bitstring,
                 offs: 0,
@@ -128,5 +190,6 @@ fn main() {
             &mut ver_sum,
         );
         println!("ver_sum: {ver_sum}");
+        println!("val: {val}");
     }
 }
