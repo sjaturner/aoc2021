@@ -9,7 +9,7 @@ fn nibble(character: char) -> u32 {
     }
 }
 
-fn line_to_bitstring(line: &str) -> Vec<u32> {
+fn line_to_bitstring(line: &str) -> Vec<u64> {
     let mut ret = Vec::new();
     for character in line.chars() {
         let mut bit = 1u32 << 3;
@@ -26,13 +26,13 @@ fn line_to_bitstring(line: &str) -> Vec<u32> {
 
 #[derive(Copy, Clone)]
 struct Chunk<'a> {
-    bits: &'a [u32],
+    bits: &'a [u64],
     offs: usize,
     rems: i32,
 }
 
-fn tobin(chunk: &mut Chunk, len: i32) -> u32 {
-    let mut ret: u32 = 0;
+fn tobin(chunk: &mut Chunk, len: i32) -> u64 {
+    let mut ret = 0u64;
     let mut len = len;
 
     loop {
@@ -49,7 +49,7 @@ fn tobin(chunk: &mut Chunk, len: i32) -> u32 {
     return ret;
 }
 
-fn literal(chunk: &mut Chunk) -> u32 {
+fn literal(chunk: &mut Chunk) -> u64 {
     let mut ret = 0;
     loop {
         let cont = tobin(chunk, 1) == 1;
@@ -68,12 +68,12 @@ fn indent(depth: u32) {
     }
 }
 
-fn process(chunk: &mut Chunk, depth: u32, ver_sum: &mut u32) -> u32 {
+fn process(chunk: &mut Chunk, depth: u32, ver_sum: &mut u64) -> u64 {
     let ver = tobin(chunk, 3);
     let typ = tobin(chunk, 3);
     indent(depth);
     println!("ver: {}", ver);
-    *ver_sum += ver;
+    *ver_sum += ver as u64;
     indent(depth);
     println!("typ: {}", typ);
     let mut sub_packets = Vec::new();
@@ -83,7 +83,7 @@ fn process(chunk: &mut Chunk, depth: u32, ver_sum: &mut u32) -> u32 {
             indent(depth);
             let val = literal(chunk);
             println!("literal: {}", val);
-            return val as u32;
+            return val;
         }
         _ => {
             // Operator
@@ -123,6 +123,8 @@ fn process(chunk: &mut Chunk, depth: u32, ver_sum: &mut u32) -> u32 {
             // Sum
             indent(depth);
             println!("Sum");
+            indent(depth);
+            println!("{:?}", sub_packets);
             return sub_packets.iter().sum();
         }
         1 => {
