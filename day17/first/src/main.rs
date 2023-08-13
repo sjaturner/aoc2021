@@ -43,7 +43,7 @@ fn main() {
         y: Range { lo: -10, hi: -5 },
     };
     let target = Target {
-        x: Range { lo: 227, hi: 318 },
+        x: Range { lo: 277, hi: 318 },
         y: Range { lo: -92, hi: -53 },
     };
 
