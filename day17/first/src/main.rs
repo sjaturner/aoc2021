@@ -42,6 +42,7 @@ fn main() {
         x: Range { lo: 20, hi: 30 },
         y: Range { lo: -10, hi: -5 },
     };
+    let mut candidates_x = Vec::new();
 
     for velx in 1..=target.x.hi + 1 {
         let mut vel = Velocity { x: velx, y: 0 };
@@ -50,16 +51,15 @@ fn main() {
 
         while pos.x <= target.x.hi + 1 {
             if pos.x >= target.x.lo && pos.x <= target.x.hi {
-                println!("possible velx: {velx}");
+                candidates_x.push(velx);
                 break;
             }
-            println!("{}", pos.x);
             step_x(&mut vel.x, &mut pos.x);
             if last_x == pos.x {
-                println!("stopped at {}", pos.x);
                 break;
             }
             last_x = pos.x;
         }
     }
+    println!("{:?}", candidates_x);
 }
