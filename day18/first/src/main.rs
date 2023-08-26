@@ -4,10 +4,22 @@ use std::{cell::RefCell, rc::Rc};
 type TreeNodeRef = Rc<RefCell<TreeNode>>;
 
 #[derive(Debug, Clone)]
+pub enum Elem {
+    Val(u32),
+    Pair(Rc<RefCell<TreeNode>>),
+}
+
+#[derive(Debug, Clone)]
 pub struct TreeNode {
-    val: i32,
-    left: Option<TreeNodeRef>,
-    right: Option<TreeNodeRef>,
+    l: Elem,
+    r: Elem,
+}
+
+fn build(input: &str, pos: &mut usize) -> TreeNode {
+    return TreeNode {
+        l: Elem::Val(0),
+        r: Elem::Val(0),
+    };
 }
 
 fn main() {
