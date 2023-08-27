@@ -148,9 +148,15 @@ fn main() {
                 }
             }
         }
-        render(&tokens);
-        if let Some(reduced) = reduce(&tokens) {
-            tokens = reduced;
+
+        loop {
+            if let Some(reduced) = reduce(&tokens) {
+                tokens = reduced;
+            } else if let Some(exploded) = explode(&tokens) {
+                tokens = exploded;
+            } else {
+                break;
+            }
         }
         render(&tokens);
     }
