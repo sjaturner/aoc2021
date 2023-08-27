@@ -4,9 +4,9 @@ use std::{cell::RefCell, rc::Rc};
 type TreeNodeRef = Rc<RefCell<TreeNode>>;
 
 #[derive(Debug, Clone)]
-pub enum Elem {
+pub enum Elem<'a> {
     Val(u32),
-    Pair(Rc<RefCell<TreeNode>>),
+    Pair(&'a TreeNode),
 }
 
 #[derive(Debug, Clone)]
@@ -24,31 +24,16 @@ fn eat_space(input: &[u8], pos: &mut usize) {
         *pos += 1;
     }
 }
-fn build_elem(input: &[u8], pos: &mut usize) -> Elem {
-    eat_space(input, pos);
-    match char_at(input, pos) {
-        '0'..='9' => Elem::Val(0),
-        '[' => Elem::Val(0),
-        _ => {
-            todo!();
-        }
-    }
+fn build_elem_val(input: &[u8], pos: &mut usize) -> Elem {
+    Elem::Val(0)
+}
+
+fn build_elem_pair(input: &[u8], pos: &mut usize) -> Elem {
+    Elem::Val(0)
 }
 
 fn build_tree_node(input: &[u8], pos: &mut usize) -> TreeNode {
     eat_space(input, pos);
-    match char_at(input, pos) {
-        '[' => {
-            *pos += 1;
-            build_elem(input, pos);
-            eat_space(input, pos);
-            assert!(char_at(input, pos) == ',');
-            build_elem(input, pos);
-            eat_space(input, pos);
-            assert!(char_at(input, pos) == ']');
-        }
-        _ => {}
-    }
 
     return TreeNode {
         l: Elem::Val(0),
