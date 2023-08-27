@@ -127,41 +127,58 @@ fn render(ip: &Vec<Token>) {
     println!();
 }
 
+fn encode(ip: &str) -> Vec<Token> {
+    let mut tokens = Vec::new();
+    for c in ip.chars() {
+        match c {
+            '[' => {
+                tokens.push(Token::Open);
+            }
+            ']' => {
+                tokens.push(Token::Close);
+            }
+            '0'..='9' => tokens.push(Token::Val(c as i32 - '0' as i32)),
+            ',' => {}
+            _ => {
+                todo!();
+            }
+        }
+    }
+    tokens
+}
+
 fn main() {
     let stdin = io::stdin();
-    for line in stdin.lock().lines() {
-        let mut tokens = Vec::new();
-        let line = line.expect("Could not read line from standard in");
+    let mut accumulator: Vec<Token> = Vec::new();
 
-        for c in line.chars() {
-            match c {
-                '[' => {
-                    tokens.push(Token::Open);
-                }
-                ']' => {
-                    tokens.push(Token::Close);
-                }
-                '0'..='9' => tokens.push(Token::Val(c as i32 - '0' as i32)),
-                ',' => {}
-                _ => {
-                    todo!();
-                }
-            }
+    for (count, line) in stdin.lock().lines().enumerate() {
+        let line = line.expect("Could not read line from standard in");
+        let tokens = encode(&line);
+
+        if count == 0 {
+            accumulator = tokens;
+        } else {
+            let mut build: Vec<Token> = Vec::new();
+            build.push(Token::Open);
+            build.extend(accumulator);
+            build.extend(tokens);
+            build.push(Token::Close);
+            accumulator = build;
         }
 
         loop {
-            if let Some(exploded) = explode(&tokens) {
-                tokens = exploded;
+            if let Some(exploded) = explode(&accumulator) {
+                accumulator = exploded;
                 print!("exploded ");
-                render(&tokens);
-            } else if let Some(splitted) = split(&tokens) {
-                tokens = splitted;
+                render(&accumulator);
+            } else if let Some(splitted) = split(&accumulator) {
+                accumulator = splitted;
                 print!("splitted ");
-                render(&tokens);
+                render(&accumulator);
             } else {
                 break;
             }
         }
-        render(&tokens);
+        render(&accumulator);
     }
 }
