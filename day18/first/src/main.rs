@@ -147,6 +147,28 @@ fn encode(ip: &str) -> Vec<Token> {
     tokens
 }
 
+fn magnitude(ip: &Vec<Token>, pos: &mut usize) -> u64 {
+    let mut ret = 0u64;
+
+    match ip[*pos] {
+        Token::Open => {
+            let mut sub = *pos + 1;
+            ret += 3 * magnitude(ip, &mut sub);
+            ret += 2 * magnitude(ip, &mut sub);
+            assert!(ip[sub] == Token::Close);
+            *pos = sub + 1;
+        }
+        Token::Close => {
+            todo!();
+        }
+        Token::Val(number) => {
+            *pos += 1;
+            return number as u64;
+        }
+    }
+    ret
+}
+
 fn main() {
     let stdin = io::stdin();
     let mut accumulator: Vec<Token> = Vec::new();
@@ -185,4 +207,5 @@ fn main() {
         }
     }
     render(&accumulator);
+    println!("{}", magnitude(&accumulator, &mut 0));
 }
