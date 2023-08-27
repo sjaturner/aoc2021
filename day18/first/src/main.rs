@@ -7,38 +7,38 @@ enum Token {
     Val(i32),
 }
 
-fn explode(ip: &Vec<Token>) -> Option<Vec<Token>> {
+fn split(ip: &Vec<Token>) -> Option<Vec<Token>> {
     let mut result = Vec::new();
-    let mut exploded = false;
+    let mut splitted = false;
     for index in 0..ip.len() {
         match ip[index] {
             Token::Open | Token::Close => {
                 result.push(ip[index]);
             }
             Token::Val(val) => {
-                if val <= 9 || exploded {
+                if val <= 9 || splitted {
                     result.push(ip[index]);
                 } else {
-                    let a = val / 2 - 1;
-                    let b = val / 2 + 1;
+                    let a = (val + 0) / 2;
+                    let b = (val + 1) / 2;
                     result.push(Token::Open);
                     result.push(Token::Val(a));
                     result.push(Token::Val(b));
                     result.push(Token::Close);
-                    exploded = true;
+                    splitted = true;
                 }
             }
         }
     }
 
-    if exploded {
+    if splitted {
         Some(result)
     } else {
         None
     }
 }
 
-fn reduce(ip: &Vec<Token>) -> Option<Vec<Token>> {
+fn explode(ip: &Vec<Token>) -> Option<Vec<Token>> {
     let mut nesting = 0;
     let mut num_first: Option<usize> = None;
     let mut triggered: Option<usize> = None;
@@ -150,10 +150,14 @@ fn main() {
         }
 
         loop {
-            if let Some(reduced) = reduce(&tokens) {
-                tokens = reduced;
-            } else if let Some(exploded) = explode(&tokens) {
+            if let Some(exploded) = explode(&tokens) {
                 tokens = exploded;
+                print!("exploded ");
+                render(&tokens);
+            } else if let Some(splitted) = split(&tokens) {
+                tokens = splitted;
+                print!("splitted ");
+                render(&tokens);
             } else {
                 break;
             }
