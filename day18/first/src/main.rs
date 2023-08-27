@@ -7,7 +7,7 @@ enum Token {
     Val(i32),
 }
 
-fn reduce(ip: Vec<Token>) -> Option<Vec<Token>> {
+fn reduce(ip: &Vec<Token>) -> Option<Vec<Token>> {
     let mut nesting = 0;
     let mut num_first: Option<usize> = None;
     let mut triggered: Option<usize> = None;
@@ -27,7 +27,7 @@ fn reduce(ip: Vec<Token>) -> Option<Vec<Token>> {
                 num_first = Some(index);
             }
 
-            if nesting >= 4 {
+            if nesting >= 5 {
                 if index < ip.len() - 4 {
                     match ip[index..index + 4] {
                         [Token::Open, Token::Val(_), Token::Val(_), Token::Close] => {
@@ -40,7 +40,7 @@ fn reduce(ip: Vec<Token>) -> Option<Vec<Token>> {
         } else if num_last == None {
             let trigger_index = triggered.unwrap();
 
-            if index > trigger_index + 4 {
+            if index >= trigger_index + 4 {
                 if let Token::Val(_) = ip[index] {
                     num_last = Some(index);
                 }
@@ -117,7 +117,10 @@ fn main() {
                 }
             }
         }
-        //      println!("{:?}", tokens);
+        render(&tokens);
+        if let Some(reduced) = reduce(&tokens) {
+            tokens = reduced;
+        }
         render(&tokens);
     }
 }
