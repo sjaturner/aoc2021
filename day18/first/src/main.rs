@@ -7,6 +7,37 @@ enum Token {
     Val(i32),
 }
 
+fn explode(ip: &Vec<Token>) -> Option<Vec<Token>> {
+    let mut result = Vec::new();
+    let mut exploded = false;
+    for index in 0..ip.len() {
+        match ip[index] {
+            Token::Open | Token::Close => {
+                result.push(ip[index]);
+            }
+            Token::Val(val) => {
+                if val <= 9 || exploded {
+                    result.push(ip[index]);
+                } else {
+                    let a = val / 2 - 1;
+                    let b = val / 2 + 1;
+                    result.push(Token::Open);
+                    result.push(Token::Val(a));
+                    result.push(Token::Val(b));
+                    result.push(Token::Close);
+                    exploded = true;
+                }
+            }
+        }
+    }
+
+    if exploded {
+        Some(result)
+    } else {
+        None
+    }
+}
+
 fn reduce(ip: &Vec<Token>) -> Option<Vec<Token>> {
     let mut nesting = 0;
     let mut num_first: Option<usize> = None;
