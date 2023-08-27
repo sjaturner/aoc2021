@@ -169,16 +169,20 @@ fn main() {
         loop {
             if let Some(exploded) = explode(&accumulator) {
                 accumulator = exploded;
-                print!("exploded ");
-                render(&accumulator);
+                if false {
+                    print!("exploded ");
+                    render(&accumulator);
+                }
             } else if let Some(splitted) = split(&accumulator) {
                 accumulator = splitted;
-                print!("splitted ");
-                render(&accumulator);
+                if false {
+                    print!("splitted ");
+                    render(&accumulator);
+                }
             } else {
                 break;
             }
         }
-        render(&accumulator);
     }
+    render(&accumulator);
 }
