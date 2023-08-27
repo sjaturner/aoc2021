@@ -79,10 +79,27 @@ fn reduce(ip: Vec<Token>) -> Option<Vec<Token>> {
     }
 }
 
+fn render(ip: &Vec<Token>) {
+    for token in ip {
+        match token {
+            Token::Open => {
+                print!("[");
+            }
+            Token::Close => {
+                print!("]");
+            }
+            Token::Val(number) => {
+                print!("{number},");
+            }
+        }
+    }
+    println!();
+}
+
 fn main() {
     let stdin = io::stdin();
-    let mut tokens = Vec::new();
     for line in stdin.lock().lines() {
+        let mut tokens = Vec::new();
         let line = line.expect("Could not read line from standard in");
 
         for c in line.chars() {
@@ -100,6 +117,7 @@ fn main() {
                 }
             }
         }
-        println!("{:?}", tokens);
+        //      println!("{:?}", tokens);
+        render(&tokens);
     }
 }
