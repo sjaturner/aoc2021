@@ -6,6 +6,7 @@ struct Scanner {
     a: Vec<i32>,
     b: Vec<i32>,
     c: Vec<i32>,
+    mag: HashMap<u32, Vec<(usize, usize)>>,
 }
 
 fn main() {
@@ -28,6 +29,7 @@ fn main() {
                     a: Vec::new(),
                     b: Vec::new(),
                     c: Vec::new(),
+                    mag: HashMap::new(),
                 },
             );
         } else {
@@ -39,6 +41,20 @@ fn main() {
             entry.a.push(vals[0]);
             entry.b.push(vals[1]);
             entry.c.push(vals[2]);
+        }
+    }
+
+    let keys: Vec<u32> = scanners.keys().map(|x| *x).collect();
+    for key in keys {
+        let entry = scanners.get_mut(&key).unwrap();
+
+        for outer in 0..entry.a.len() {
+            for inner in 0..outer {
+                let da = entry.a[outer] - entry.a[inner];
+                let db = entry.b[outer] - entry.b[inner];
+                let dc = entry.c[outer] - entry.c[inner];
+                let mag = da * da + db + db + dc * dc;
+            }
         }
     }
 
