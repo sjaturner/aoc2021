@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::io::{self, BufRead};
 
 #[derive(Debug)]
@@ -6,7 +6,7 @@ struct Scanner {
     a: Vec<i32>,
     b: Vec<i32>,
     c: Vec<i32>,
-    mag: HashMap<u32, Vec<(usize, usize)>>,
+    mag: HashMap<i32, Vec<(usize, usize)>>,
 }
 
 fn main() {
@@ -54,9 +54,28 @@ fn main() {
                 let db = entry.b[outer] - entry.b[inner];
                 let dc = entry.c[outer] - entry.c[inner];
                 let mag = da * da + db + db + dc * dc;
+
+                entry
+                    .mag
+                    .entry(mag)
+                    .or_insert(Vec::new())
+                    .push((outer, inner));
             }
         }
     }
+    let mut keys: Vec<u32> = scanners.keys().map(|x| *x).collect();
+    keys.sort();
+    for outer in keys {
+        for inner in 0..outer {
+            let inner_set: HashSet<i32> =
+                scanners.get(&outer).unwrap().mag.keys().copied().collect();
+            let outer_set: HashSet<i32> =
+                scanners.get(&outer).unwrap().mag.keys().copied().collect();
+            println!("{outer} {inner} {:?}", inner_set.intersection(&outer_set));
+        }
+    }
 
-    println!("{:?}", scanners);
+    if false {
+        println!("{:?}", scanners);
+    }
 }
