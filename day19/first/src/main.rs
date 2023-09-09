@@ -110,11 +110,14 @@ fn main() {
     }
 
     let keys: Vec<u32> = scanners.keys().map(|x| *x).collect();
-    for key in keys {
+    let max_key = *keys.iter().max().unwrap();
+    assert!(keys.len() == max_key as usize + 1);
+
+    for key in 0..=max_key {
         let entry = scanners.get_mut(&key).unwrap();
 
         for outer in 0..entry.a.len() {
-            for inner in 0..outer {
+            for inner in outer + 1..entry.a.len() {
                 let da = entry.a[outer] - entry.a[inner];
                 let db = entry.b[outer] - entry.b[inner];
                 let dc = entry.c[outer] - entry.c[inner];
@@ -128,9 +131,6 @@ fn main() {
             }
         }
     }
-    let keys: Vec<u32> = scanners.keys().map(|x| *x).collect();
-    let max_key = *keys.iter().max().unwrap();
-    assert!(keys.len() == max_key as usize + 1);
 
     for outer in 0..=max_key {
         for inner in outer + 1..=max_key {
@@ -142,7 +142,7 @@ fn main() {
             let count = intersection.clone().count();
 
             // The instructions say that there are at least this many overlapping points.
-            if count < 12 {
+            if false && count < 12 {
                 continue;
             }
 
@@ -169,9 +169,5 @@ fn main() {
             println!("outer: {outer}: {:?}", ol);
             println!("inner: {inner}: {:?}", il);
         }
-    }
-
-    if false {
-        println!("{:?}", scanners);
     }
 }
