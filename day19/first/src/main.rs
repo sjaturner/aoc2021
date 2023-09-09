@@ -17,7 +17,40 @@ struct Mapper {
     yoff: i32,
 }
 
+fn transform(mapper: &Mapper, p: (i32, i32)) -> (i32, i32) {
+    let bx = if mapper.swap { p.1 } else { p.0 };
+    let by = if mapper.swap { p.0 } else { p.1 };
+    let bx = mapper.xflip * bx;
+    let by = mapper.yflip * by;
+    let bx = bx + mapper.xoff;
+    let by = by + mapper.yoff;
+
+    (bx, by)
+}
+
+fn score(mapper: Mapper, a: Vec<(i32, i32)>, b: Vec<(i32, i32)>) -> u32 {
+    assert!(a.len() == b.len());
+    let mut total = 0;
+
+    for index in 0..a.len() {
+        let ax = a[index].0;
+        let ay = a[index].1;
+        let (bx, by) = transform(&mapper, (b[index].0, b[index].1));
+
+        if ax == bx && ay == by {
+            total += 1;
+        }
+    }
+    total
+}
+
 fn best_fit(a: Vec<(i32, i32)>, b: Vec<(i32, i32)>) -> Mapper {
+    for swap in [false, true] {
+        for xflip in [-1, 1] {
+            for yflip in [-1, 1] {}
+        }
+    }
+
     Mapper {
         swap: false,
         xflip: 0,
@@ -26,6 +59,7 @@ fn best_fit(a: Vec<(i32, i32)>, b: Vec<(i32, i32)>) -> Mapper {
         yoff: 0,
     }
 }
+
 fn main() {
     let stdin = io::stdin();
     let mut scanners: HashMap<u32, Scanner> = HashMap::new();
