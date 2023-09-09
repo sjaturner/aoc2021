@@ -74,7 +74,14 @@ fn main() {
             let outer_set: HashSet<i32> =
                 scanners.get(&outer).unwrap().mag.keys().copied().collect();
             let intersection = inner_set.intersection(&outer_set);
-            println!("{outer} {inner} {:?}", intersection);
+            let count = intersection.clone().count();
+
+            // The instructions say that there are at least this many overlapping points.
+            if count < 12 {
+                continue;
+            }
+
+            println!("{outer} {inner} {:?} {}", intersection, count);
             for item in intersection {
                 println!("item: {item}");
                 println!(
