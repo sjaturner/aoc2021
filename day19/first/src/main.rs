@@ -147,21 +147,27 @@ fn main() {
             }
 
             println!("{outer} {inner} {:?} {}", intersection, count);
+            let mut ol: Vec<(i32, i32, i32)> = Vec::new();
+            let mut il: Vec<(i32, i32, i32)> = Vec::new();
             for item in intersection {
-                println!("item: {item}");
-                println!(
-                    "outer: {outer}: {:?}",
-                    scanners.get(&outer).unwrap().mag.get(item)
-                );
-                println!(
-                    "inner: {inner}: {:?}",
-                    scanners.get(&inner).unwrap().mag.get(item)
-                );
-                let mapper = best_fit(
-                    scanners.get(&outer).unwrap().mag.get(item).unwrap(),
-                    scanners.get(&inner).unwrap().mag.get(item).unwrap(),
-                );
+                if let Some(outer_list) = scanners.get(&outer).unwrap().mag.get(item) {
+                    if outer_list.len() == 1 {
+                        if let Some(inner_list) = scanners.get(&inner).unwrap().mag.get(item) {
+                            if inner_list.len() == 1 {
+                                let os = scanners.get(&outer).unwrap();
+                                let oo = outer_list[0].0;
+                                ol.push((os.a[oo], os.b[oo], os.c[oo]));
+
+                                let is = scanners.get(&inner).unwrap();
+                                let io = outer_list[0].0;
+                                il.push((is.a[io], is.b[io], is.c[io]));
+                            }
+                        }
+                    }
+                }
             }
+            println!("outer: {outer}: {:?}", ol);
+            println!("inner: {inner}: {:?}", il);
         }
     }
 
