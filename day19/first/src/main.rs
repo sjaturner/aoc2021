@@ -9,6 +9,23 @@ struct Scanner {
     mag: HashMap<i32, Vec<(usize, usize)>>,
 }
 
+struct Mapper {
+    swap: bool,
+    xflip: i32,
+    yflip: i32,
+    xoff: i32,
+    yoff: i32,
+}
+
+fn best_fit(a: Vec<(i32, i32)>, b: Vec<(i32, i32)>) -> Mapper {
+    Mapper {
+        swap: false,
+        xflip: 0,
+        yflip: 0,
+        xoff: 0,
+        yoff: 0,
+    }
+}
 fn main() {
     let stdin = io::stdin();
     let mut scanners: HashMap<u32, Scanner> = HashMap::new();
