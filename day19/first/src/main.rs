@@ -63,17 +63,29 @@ fn main() {
             }
         }
     }
-    let mut keys: Vec<u32> = scanners.keys().map(|x| *x).collect();
-    keys.sort();
-    for outer in keys {
-        for inner in 0..outer {
+    let keys: Vec<u32> = scanners.keys().map(|x| *x).collect();
+    let max_key = *keys.iter().max().unwrap();
+    assert!(keys.len() == max_key as usize + 1);
+
+    for outer in 0..=max_key {
+        for inner in outer + 1..=max_key {
             let inner_set: HashSet<i32> =
-                scanners.get(&outer).unwrap().mag.keys().copied().collect();
+                scanners.get(&inner).unwrap().mag.keys().copied().collect();
             let outer_set: HashSet<i32> =
                 scanners.get(&outer).unwrap().mag.keys().copied().collect();
             let intersection = inner_set.intersection(&outer_set);
             println!("{outer} {inner} {:?}", intersection);
-            for item in intersection {}
+            for item in intersection {
+                println!("item: {item}");
+                println!(
+                    "outer: {outer}: {:?}",
+                    scanners.get(&outer).unwrap().mag.get(item)
+                );
+                println!(
+                    "inner: {inner}: {:?}",
+                    scanners.get(&inner).unwrap().mag.get(item)
+                );
+            }
         }
     }
 
