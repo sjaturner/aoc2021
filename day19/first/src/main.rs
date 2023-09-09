@@ -9,6 +9,7 @@ struct Scanner {
     mag: HashMap<i32, Vec<(usize, usize)>>,
 }
 
+#[derive(Debug)]
 struct Mapper {
     swap: bool,
     xflip: i32,
@@ -28,8 +29,7 @@ fn transform(mapper: &Mapper, p: (i32, i32)) -> (i32, i32) {
     (bx, by)
 }
 
-fn score(mapper: Mapper, a: Vec<(i32, i32)>, b: Vec<(i32, i32)>) -> u32 {
-    assert!(a.len() == b.len());
+fn score(mapper: Mapper, a: &Vec<(i32, i32)>, b: &Vec<(i32, i32)>) -> u32 {
     let mut total = 0;
 
     for index in 0..a.len() {
@@ -44,10 +44,24 @@ fn score(mapper: Mapper, a: Vec<(i32, i32)>, b: Vec<(i32, i32)>) -> u32 {
     total
 }
 
-fn best_fit(a: Vec<(i32, i32)>, b: Vec<(i32, i32)>) -> Mapper {
+fn best_fit(a: &Vec<(i32, i32)>, b: &Vec<(i32, i32)>) -> Mapper {
+    assert!(a.len() == b.len());
     for swap in [false, true] {
         for xflip in [-1, 1] {
-            for yflip in [-1, 1] {}
+            for yflip in [-1, 1] {
+                let mut mapper = Mapper {
+                    xoff: 0,
+                    yoff: 0,
+                    swap,
+                    xflip,
+                    yflip,
+                };
+                let (xoff, yoff) = transform(&mapper, b[0]);
+                mapper.xoff = -xoff;
+                mapper.yoff = -yoff;
+                println!("{:?}", mapper);
+                score(mapper, &a, &b);
+            }
         }
     }
 
@@ -142,6 +156,10 @@ fn main() {
                 println!(
                     "inner: {inner}: {:?}",
                     scanners.get(&inner).unwrap().mag.get(item)
+                );
+                let mapper = best_fit(
+                    scanners.get(&outer).unwrap().mag.get(item).unwrap(),
+                    scanners.get(&inner).unwrap().mag.get(item).unwrap(),
                 );
             }
         }
