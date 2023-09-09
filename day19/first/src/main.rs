@@ -71,7 +71,9 @@ fn main() {
                 scanners.get(&outer).unwrap().mag.keys().copied().collect();
             let outer_set: HashSet<i32> =
                 scanners.get(&outer).unwrap().mag.keys().copied().collect();
-            println!("{outer} {inner} {:?}", inner_set.intersection(&outer_set));
+            let intersection = inner_set.intersection(&outer_set);
+            println!("{outer} {inner} {:?}", intersection);
+            for item in intersection {}
         }
     }
 
