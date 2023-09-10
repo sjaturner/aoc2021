@@ -6,7 +6,7 @@ struct Scanner {
     a: Vec<i32>,
     b: Vec<i32>,
     c: Vec<i32>,
-    mag: HashMap<i32, Vec<(usize, usize)>>,
+    mag: HashMap<(i32, i32, i32), Vec<(usize, usize)>>,
 }
 
 fn main() {
@@ -56,53 +56,33 @@ fn main() {
                 let da = entry.a[outer] - entry.a[inner];
                 let db = entry.b[outer] - entry.b[inner];
                 let dc = entry.c[outer] - entry.c[inner];
-                let mag = da * da + db + db + dc * dc;
+
+                let mut v = vec![da.abs(), db.abs(), dc.abs()];
+                v.sort();
 
                 entry
                     .mag
-                    .entry(mag)
+                    .entry((v[0], v[1], v[2]))
                     .or_insert(Vec::new())
                     .push((outer, inner));
             }
         }
     }
 
+    let keys: Vec<u32> = scanners.keys().map(|x| *x).collect();
+    let max_key = *keys.iter().max().unwrap();
+    assert!(keys.len() == max_key as usize + 1);
+
     for outer in 0..=max_key {
         for inner in outer + 1..=max_key {
-            let inner_set: HashSet<i32> =
+            let inner_set: HashSet<(i32, i32, i32)> =
                 scanners.get(&inner).unwrap().mag.keys().copied().collect();
-            let outer_set: HashSet<i32> =
+            let outer_set: HashSet<(i32, i32, i32)> =
                 scanners.get(&outer).unwrap().mag.keys().copied().collect();
             let intersection = inner_set.intersection(&outer_set);
             let count = intersection.clone().count();
 
-            // The instructions say that there are at least this many overlapping points.
-            if false && count < 12 {
-                continue;
-            }
-
-            println!("{outer} {inner} {:?} {}", intersection, count);
-            let mut ol: Vec<(i32, i32, i32)> = Vec::new();
-            let mut il: Vec<(i32, i32, i32)> = Vec::new();
-            for item in intersection {
-                if let Some(outer_list) = scanners.get(&outer).unwrap().mag.get(item) {
-                    if outer_list.len() == 1 {
-                        if let Some(inner_list) = scanners.get(&inner).unwrap().mag.get(item) {
-                            if inner_list.len() == 1 {
-                                let os = scanners.get(&outer).unwrap();
-                                let oo = outer_list[0].0;
-                                ol.push((os.a[oo], os.b[oo], os.c[oo]));
-
-                                let is = scanners.get(&inner).unwrap();
-                                let io = outer_list[0].0;
-                                il.push((is.a[io], is.b[io], is.c[io]));
-                            }
-                        }
-                    }
-                }
-            }
-            println!("outer: {outer}: {:?}", ol);
-            println!("inner: {inner}: {:?}", il);
+            println!("{outer} {inner} {count}")
         }
     }
 }
