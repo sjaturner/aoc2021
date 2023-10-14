@@ -6,7 +6,6 @@ struct Scanner {
     a: Vec<i32>,
     b: Vec<i32>,
     c: Vec<i32>,
-    mag: HashMap<(i32, i32, i32), Vec<(usize, usize)>>,
 }
 
 fn main() {
@@ -29,7 +28,6 @@ fn main() {
                     a: Vec::new(),
                     b: Vec::new(),
                     c: Vec::new(),
-                    mag: HashMap::new(),
                 },
             );
         } else {
@@ -41,48 +39,6 @@ fn main() {
             entry.a.push(vals[0]);
             entry.b.push(vals[1]);
             entry.c.push(vals[2]);
-        }
-    }
-
-    let keys: Vec<u32> = scanners.keys().map(|x| *x).collect();
-    let max_key = *keys.iter().max().unwrap();
-    assert!(keys.len() == max_key as usize + 1);
-
-    for key in 0..=max_key {
-        let entry = scanners.get_mut(&key).unwrap();
-
-        for outer in 0..entry.a.len() {
-            for inner in outer + 1..entry.a.len() {
-                let da = entry.a[outer] - entry.a[inner];
-                let db = entry.b[outer] - entry.b[inner];
-                let dc = entry.c[outer] - entry.c[inner];
-
-                let mut v = vec![da.abs(), db.abs(), dc.abs()];
-                v.sort();
-
-                entry
-                    .mag
-                    .entry((v[0], v[1], v[2]))
-                    .or_insert(Vec::new())
-                    .push((outer, inner));
-            }
-        }
-    }
-
-    let keys: Vec<u32> = scanners.keys().map(|x| *x).collect();
-    let max_key = *keys.iter().max().unwrap();
-    assert!(keys.len() == max_key as usize + 1);
-
-    for outer in 0..=max_key {
-        for inner in outer + 1..=max_key {
-            let inner_set: HashSet<(i32, i32, i32)> =
-                scanners.get(&inner).unwrap().mag.keys().copied().collect();
-            let outer_set: HashSet<(i32, i32, i32)> =
-                scanners.get(&outer).unwrap().mag.keys().copied().collect();
-            let intersection = inner_set.intersection(&outer_set);
-            let count = intersection.clone().count();
-
-            println!("{outer} {inner} {count}")
         }
     }
 }
