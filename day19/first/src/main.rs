@@ -73,10 +73,21 @@ fn main() {
     scanners.push(build.to_vec());
     build.clear();
 
-    println!("{:?}", transforms);
-
     let mut cloud = Array::zeros((0, 3));
-    println!("{:?}", cloud);
     append_xyzs_to_cloud(&mut cloud, scanners.remove(0));
-    println!("{:?}", cloud);
+
+    for scanner in scanners {
+        let mut scanner_as_matrix = Array::zeros((0, 3));
+        append_xyzs_to_cloud(&mut scanner_as_matrix, scanner);
+        println!("{:?}", scanner_as_matrix.dim());
+        scanner_as_matrix = scanner_as_matrix.reversed_axes();
+
+        for transform in &transforms {
+            for transformed_tuple in transform.dot(&scanner_as_matrix).columns() {
+                for cloud_tuple in cloud.rows() {
+                    println!("{:?} {:?}", transformed_tuple, cloud_tuple);
+                }
+            }
+        }
+    }
 }
