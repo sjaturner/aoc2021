@@ -77,35 +77,53 @@ fn main() {
     let mut cloud = Array::zeros((0, 3));
     append_xyzs_to_cloud(&mut cloud, scanners.remove(0));
 
-    'outer: for (scanner_index, scanner) in scanners.into_iter().enumerate() {
-        let mut scanner_as_matrix = Array::zeros((0, 3));
-        append_xyzs_to_cloud(&mut scanner_as_matrix, scanner);
-        scanner_as_matrix = scanner_as_matrix.reversed_axes();
+    while !scanners.is_empty() {
+        let mut remove = None;
 
-        for transform in &transforms {
-            let mut transformed = transform.dot(&scanner_as_matrix);
-            println!("TDD {:?}", transformed.dim());
-            let mut delta: HashMap<(i32, i32, i32), u32> = HashMap::new();
+        'outer: for (scanner_index, scanner) in scanners.clone().into_iter().enumerate() {
+            let mut scanner_as_matrix = Array::zeros((0, 3));
+            append_xyzs_to_cloud(&mut scanner_as_matrix, scanner);
 
-            for transformed_tuple in transformed.columns() {
-                for cloud_tuple in cloud.clone().reversed_axes().columns() {
-                    let key = (
+            for transform in &transforms {
+                let transformed = transform.dot(&scanner_as_matrix.clone().reversed_axes());
+                let mut delta: HashMap<(i32, i32, i32), u32> = HashMap::new();
+
+                for transformed_tuple in transformed.columns() {
+                    for cloud_tuple in cloud.clone().reversed_axes().columns() {
+                        let key = (
                             cloud_tuple[0] - transformed_tuple[0],
                             cloud_tuple[1] - transformed_tuple[1],
                             cloud_tuple[2] - transformed_tuple[2],
-                            );
-                    println!("TTT {:?}", transformed_tuple);
-                    println!("CCC {:?}", cloud_tuple);
-                    println!("ZZZ {:?}", key);
-
-                    *delta.entry(key).or_insert(0) += 1;
+                        );
+                        *delta.entry(key).or_insert(0) += 1;
+                    }
                 }
-                println!();
+                for elem in delta {
+                    if elem.1 >= 12 {
+                        println!("overlap {}", elem.1);
+
+                        cloud = concatenate![
+                            Axis(0),
+                            cloud,
+                            transformed.reversed_axes() + array![[elem.0 .0, elem.0 .1, elem.0 .2]]
+                        ];
+
+                        remove = Some(scanner_index);
+                        break 'outer;
+                    }
+                }
             }
-            for elem in delta {
-                println!(">>> {:?}", elem);
-            }
-            println!();
         }
+
+        if let Some(index) = remove {
+            scanners.remove(index);
+        } else {
+        }
+    }
+    for row in cloud
+        .axis_iter_mut(Axis(0))
+        .map(|row| (row[0], row[1], row[2]))
+    {
+        println!("{:?}", row);
     }
 }
