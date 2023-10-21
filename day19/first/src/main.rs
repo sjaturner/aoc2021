@@ -75,8 +75,7 @@ fn main() {
     build.clear();
 
     let mut cloud = Array::zeros((0, 3));
-    // append_xyzs_to_cloud(&mut cloud, scanners.remove(0));
-    append_xyzs_to_cloud(&mut cloud, scanners[0].clone());
+    append_xyzs_to_cloud(&mut cloud, scanners.remove(0));
 
     'outer: for (scanner_index, scanner) in scanners.into_iter().enumerate() {
         let mut scanner_as_matrix = Array::zeros((0, 3));
@@ -85,24 +84,28 @@ fn main() {
 
         for transform in &transforms {
             let mut transformed = transform.dot(&scanner_as_matrix);
+            println!("TDD {:?}", transformed.dim());
+            let mut delta: HashMap<(i32, i32, i32), u32> = HashMap::new();
 
             for transformed_tuple in transformed.columns() {
-                let mut delta: HashMap<(i32, i32, i32), u32> = HashMap::new();
-                for cloud_tuple in cloud.axis_iter_mut(Axis(0)) {
-                    *delta
-                        .entry((
+                for cloud_tuple in cloud.clone().reversed_axes().columns() {
+                    let key = (
                             cloud_tuple[0] - transformed_tuple[0],
                             cloud_tuple[1] - transformed_tuple[1],
                             cloud_tuple[2] - transformed_tuple[2],
-                        ))
-                        .or_insert(0) += 1;
+                            );
+                    println!("TTT {:?}", transformed_tuple);
+                    println!("CCC {:?}", cloud_tuple);
+                    println!("ZZZ {:?}", key);
+
+                    *delta.entry(key).or_insert(0) += 1;
                 }
-                for elem in delta {
-                    if elem.1 != 1 {
-                        println!("{:?}", elem);
-                    }
-                }
+                println!();
             }
+            for elem in delta {
+                println!(">>> {:?}", elem);
+            }
+            println!();
         }
     }
 }
