@@ -1,6 +1,6 @@
 use ndarray::prelude::*;
 
-fn main() {
+fn prep_transforms() {
     for s2 in [-1, 1] {
         for s1 in [-1, 1] {
             for s0 in [-1, 1] {
@@ -30,4 +30,19 @@ fn main() {
             }
         }
     }
+}
+
+fn main() {
+    let a = arr2(&[[1, 2, 3], [4, 5, 6]]);
+    let b = arr2(&[[4, 5, 6]]);
+    let c = arr2(&[[4, 5, 6]]);
+    let mut v = Vec::new();
+    v.push(a);
+    v.push(b);
+    v.push(c);
+    println!("{:?}", v);
+
+    let foo = v.remove(1);
+    println!("{:?}", v);
+    println!("{:?}", foo);
 }
