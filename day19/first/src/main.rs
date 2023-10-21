@@ -1,5 +1,6 @@
 use ndarray::prelude::*;
 use ndarray::{concatenate, Axis};
+use std::collections::HashMap;
 use std::io::{self, BufRead};
 
 fn make_transforms() -> Vec<Array<i32, Dim<[usize; 2]>>> {
@@ -52,9 +53,9 @@ fn main() {
         let line = line.expect("Could not read line from standard in");
         let line = line.trim();
 
-        if line.len() == 0 {
-        } else if line.len() >= 3 && line[0..3] == "---".to_string() {
-            if build.len() != 0 {
+        if line.is_empty() {
+        } else if line.len() >= 3 && line[0..3] == *"---".to_string() {
+            if !build.is_empty() {
                 scanners.push(build.to_vec());
                 build.clear();
             }
@@ -74,18 +75,31 @@ fn main() {
     build.clear();
 
     let mut cloud = Array::zeros((0, 3));
-    append_xyzs_to_cloud(&mut cloud, scanners.remove(0));
+    append_xyzs_to_cloud(&mut cloud, scanners[0].clone());
 
-    for scanner in scanners {
+    'outer: for (scanner_index, scanner) in scanners.into_iter().enumerate() {
         let mut scanner_as_matrix = Array::zeros((0, 3));
         append_xyzs_to_cloud(&mut scanner_as_matrix, scanner);
-        println!("{:?}", scanner_as_matrix.dim());
         scanner_as_matrix = scanner_as_matrix.reversed_axes();
 
         for transform in &transforms {
-            for transformed_tuple in transform.dot(&scanner_as_matrix).columns() {
-                for cloud_tuple in cloud.rows() {
-                    println!("{:?} {:?}", transformed_tuple, cloud_tuple);
+            let mut transformed = transform.dot(&scanner_as_matrix);
+
+            for transformed_tuple in transformed.columns() {
+                let mut delta: HashMap<(i32, i32, i32), u32> = HashMap::new();
+                for cloud_tuple in cloud.axis_iter_mut(Axis(0)) {
+                    *delta
+                        .entry((
+                            cloud_tuple[0] - transformed_tuple[0],
+                            cloud_tuple[1] - transformed_tuple[1],
+                            cloud_tuple[2] - transformed_tuple[2],
+                        ))
+                        .or_insert(0) += 1;
+                }
+                for elem in delta {
+                    if elem.1 != 1 {
+                        println!("{:?}", elem);
+                    }
                 }
             }
         }
