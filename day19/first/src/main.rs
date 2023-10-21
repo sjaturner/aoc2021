@@ -75,6 +75,7 @@ fn main() {
     build.clear();
 
     let mut cloud = Array::zeros((0, 3));
+    // append_xyzs_to_cloud(&mut cloud, scanners.remove(0));
     append_xyzs_to_cloud(&mut cloud, scanners[0].clone());
 
     'outer: for (scanner_index, scanner) in scanners.into_iter().enumerate() {
