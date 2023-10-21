@@ -1,4 +1,5 @@
 use ndarray::prelude::*;
+use ndarray::{concatenate, Axis};
 use std::io::{self, BufRead};
 
 fn make_transforms() -> Vec<Array<i32, Dim<[usize; 2]>>> {
@@ -25,8 +26,6 @@ fn make_transforms() -> Vec<Array<i32, Dim<[usize; 2]>>> {
                             b[[1, r1]] = 1;
                             b[[2, r2]] = 1;
 
-                            println!("{:?}", a.dot(&b));
-                            println!();
                             ret.push(a.dot(&b))
                         }
                     }
@@ -35,6 +34,12 @@ fn make_transforms() -> Vec<Array<i32, Dim<[usize; 2]>>> {
         }
     }
     ret
+}
+
+fn append_xyzs_to_cloud(cloud: &mut Array<i32, Dim<[usize; 2]>>, xyzs: Vec<(i32, i32, i32)>) {
+    for tuple in xyzs {
+        *cloud = concatenate![Axis(0), *cloud, array![[tuple.0, tuple.1, tuple.2],]];
+    }
 }
 
 fn main() {
@@ -68,6 +73,10 @@ fn main() {
     scanners.push(build.to_vec());
     build.clear();
 
-    println!("{:?}", scanners);
     println!("{:?}", transforms);
+
+    let mut cloud = Array::zeros((0, 3));
+    println!("{:?}", cloud);
+    append_xyzs_to_cloud(&mut cloud, scanners.remove(0));
+    println!("{:?}", cloud);
 }
