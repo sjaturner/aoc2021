@@ -1,6 +1,7 @@
 use ndarray::prelude::*;
 use ndarray::{concatenate, Axis};
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::io::{self, BufRead};
 
 fn make_transforms() -> Vec<Array<i32, Dim<[usize; 2]>>> {
@@ -41,6 +42,25 @@ fn append_xyzs_to_cloud(cloud: &mut Array<i32, Dim<[usize; 2]>>, xyzs: Vec<(i32,
     for tuple in xyzs {
         *cloud = concatenate![Axis(0), *cloud, array![[tuple.0, tuple.1, tuple.2],]];
     }
+}
+
+fn squee(cloud: Array<i32, Dim<[usize; 2]>>) -> Array<i32, Dim<[usize; 2]>> {
+    let mut vec = Vec::new();
+
+    for row in cloud.rows() {
+        vec.push((row[0], row[1], row[2]));
+    }
+
+    let uniq = vec
+        .into_iter()
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+
+    let mut ret = Array::zeros((0, 3));
+    append_xyzs_to_cloud(&mut ret, uniq);
+
+    ret
 }
 
 fn main() {
@@ -100,13 +120,13 @@ fn main() {
                 }
                 for elem in delta {
                     if elem.1 >= 12 {
-                        println!("overlap {}", elem.1);
-
                         cloud = concatenate![
                             Axis(0),
                             cloud,
                             transformed.reversed_axes() + array![[elem.0 .0, elem.0 .1, elem.0 .2]]
                         ];
+
+                        cloud = squee(cloud);
 
                         remove = Some(scanner_index);
                         break 'outer;
@@ -117,13 +137,12 @@ fn main() {
 
         if let Some(index) = remove {
             scanners.remove(index);
-        } else {
         }
     }
     for row in cloud
         .axis_iter_mut(Axis(0))
         .map(|row| (row[0], row[1], row[2]))
     {
-        println!("{:?}", row);
+        println!("{} {} {}", row.0, row.1, row.2);
     }
 }
