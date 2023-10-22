@@ -1,3 +1,4 @@
+use std::env;
 use std::io::{self, BufRead};
 
 fn border(block: Vec<Vec<u32>>, pad: usize) -> Vec<Vec<u32>> {
@@ -108,6 +109,15 @@ fn main() {
     let mut lut = Vec::new();
     let mut block = Vec::new();
 
+    let args: Vec<_> = env::args().collect();
+
+    let mut goes = 2;
+
+    if args.len() > 1 {
+        goes = args[1].parse::<u32>().unwrap();
+        println!("{}", goes);
+    }
+
     for (index, line) in stdin.lock().lines().enumerate() {
         let line = line.expect("Could not read line from standard in");
         let elems: Vec<u32> = line
@@ -121,16 +131,19 @@ fn main() {
             block.push(elems)
         }
     }
-    let edge = 10;
-    block = border(block, edge);
+    let edge = 4 * goes;
+    block = border(block, edge as usize);
+    render(&block);
 
-    let mut trim = 0;
+    assert!(goes % 2 == 0);
 
-    block = transform(&block, &lut);
-    block = transform(&block, &lut);
-    trim += 1;
-    block = edging(&block, trim);
+    for _ in 0..goes / 2 {
+        block = border(block, 2);
+        block = transform(&block, &lut);
+        block = transform(&block, &lut);
+        block = edging(&block, 1);
+        render(&block);
+    }
 
     println!("{}", weigh(&block));
-
 }
