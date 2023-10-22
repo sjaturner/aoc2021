@@ -91,6 +91,18 @@ fn render(block: &Vec<Vec<u32>>) {
     }
 }
 
+fn weigh(block: &Vec<Vec<u32>>) -> u32 {
+    let width = block[0].len();
+    let height = block.len();
+    let mut ret = 0;
+    for y in 0..height {
+        for x in 0..width {
+            ret += block[y][x];
+        }
+    }
+    ret
+}
+
 fn main() {
     let stdin = io::stdin();
     let mut lut = Vec::new();
@@ -119,5 +131,6 @@ fn main() {
     trim += 1;
     block = edging(&block, trim);
 
-    render(&block);
+    println!("{}", weigh(&block));
+
 }
