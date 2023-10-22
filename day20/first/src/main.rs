@@ -25,6 +25,19 @@ fn border(block: Vec<Vec<u32>>, pad: usize) -> Vec<Vec<u32>> {
     ret
 }
 
+fn edging(block: &Vec<Vec<u32>>, trim: usize) -> Vec<Vec<u32>> {
+    let height = block.len();
+    let width = block[0].len();
+    let mut ret = Vec::new();
+
+    for y in 0..height {
+        if y >= trim && y + trim < height {
+            ret.push(block[y][trim..width - 1].to_vec());
+        }
+    }
+
+    ret
+}
 fn get_pixel(block: &Vec<Vec<u32>>, coord: (i32, i32)) -> u32 {
     let width = block[0].len() as i32;
     let height = block.len() as i32;
@@ -104,6 +117,7 @@ fn main() {
     block = transform(&block, &lut);
     block = transform(&block, &lut);
     trim += 1;
+    block = edging(&block, trim);
 
     render(&block);
 }
