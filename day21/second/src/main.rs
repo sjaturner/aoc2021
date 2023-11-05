@@ -1,6 +1,7 @@
+use std::collections::HashMap;
 use std::env;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
 struct Player {
     pos: u64,
     rem: u64,
@@ -8,11 +9,25 @@ struct Player {
     acc: u64,
 }
 
-fn recurse(current: usize, players: [Player; 2], player_1_wins: &mut u64, player_2_wins: &mut u64) {
-    if true {
+#[derive(Hash, Eq, PartialEq, PartialOrd, Ord)]
+struct Key {
+    current: usize,
+    players: [Player; 2],
+}
+
+fn recurse(
+    memo: &mut HashMap<Key, [u64; 2]>,
+    current: usize,
+    players: [Player; 2],
+    player_1_wins: &mut u64,
+    player_2_wins: &mut u64,
+) {
+    if false {
         println!(
             "{current} {:?} {} {}",
-            players, 0, 0, // *player_1_wins, *player_2_wins
+            players,
+            0,
+            0, // *player_1_wins, *player_2_wins
         );
     }
     match players[current].state {
@@ -21,7 +36,7 @@ fn recurse(current: usize, players: [Player; 2], player_1_wins: &mut u64, player
             copy_players[current].state += 1;
             for _roll in 1..=3 {
                 copy_players[current].acc += 1;
-                recurse(current, copy_players, player_1_wins, player_2_wins);
+                recurse(memo, current, copy_players, player_1_wins, player_2_wins);
             }
         }
         3 => {
@@ -39,12 +54,28 @@ fn recurse(current: usize, players: [Player; 2], player_1_wins: &mut u64, player
                 copy_players[current].state = 0;
                 copy_players[current].acc = 0;
 
-                recurse(
-                    if current == 0 { 1 } else { 0 },
-                    copy_players,
-                    player_1_wins,
-                    player_2_wins,
-                );
+                let key = Key { current, players };
+
+                if let Some(wins) = memo.get(&key) {
+                    *player_1_wins += wins[0];
+                    *player_2_wins += wins[1];
+                } else {
+                    let mut wins_1 = 0u64;
+                    let mut wins_2 = 0u64;
+
+                    recurse(
+                        memo,
+                        if current == 0 { 1 } else { 0 },
+                        copy_players,
+                        &mut wins_1,
+                        &mut wins_2,
+                    );
+                    let result = [wins_1, wins_2];
+
+                    memo.insert(key, result);
+                    *player_1_wins += wins_1;
+                    *player_2_wins += wins_2;
+                }
             }
         }
         _ => assert!(false),
@@ -72,8 +103,15 @@ fn main() {
     ];
     let mut player_1_wins = 0;
     let mut player_2_wins = 0;
+    let mut memo: HashMap<Key, [u64; 2]> = HashMap::new();
 
-    recurse(0, players, &mut player_1_wins, &mut player_2_wins);
+    recurse(
+        &mut memo,
+        0,
+        players,
+        &mut player_1_wins,
+        &mut player_2_wins,
+    );
 
     println!("{} {}", player_1_wins, player_2_wins);
 }
