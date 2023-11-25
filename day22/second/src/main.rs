@@ -152,6 +152,16 @@ fn slice(state: &Vec<Block>, block: Block) -> Vec<Block> {
     ret
 }
 
+fn is_in(is_this: Block, in_this: Block) -> bool {
+    return true
+        && is_this.dim_range[0].0 >= in_this.dim_range[0].0
+        && is_this.dim_range[0].1 <= in_this.dim_range[0].1
+        && is_this.dim_range[1].0 >= in_this.dim_range[1].0
+        && is_this.dim_range[1].1 <= in_this.dim_range[1].1
+        && is_this.dim_range[2].0 >= in_this.dim_range[2].0
+        && is_this.dim_range[2].1 <= in_this.dim_range[2].1;
+}
+
 fn main() {
     let stdin = io::stdin();
     let mut state: Vec<Block> = Vec::new();
@@ -170,9 +180,11 @@ fn main() {
         println!("{:?}", slice(&state, s));
     }
 
-    for line in stdin.lock().lines() {
+    for (index, line) in stdin.lock().lines().enumerate() {
         let line = line.expect("Could not read line from standard in");
         let line = line.as_str();
+
+        println!("{}", index);
 
         let r = Regex::new(r"(off|on) x=([-+0-9]*)\.\.([-+0-9]*),y=([-+0-9]*)\.\.([-+0-9]*),z=([-+0-9]*)\.\.([-+0-9]*)").unwrap();
         let caps = r.captures(line).unwrap();
@@ -192,6 +204,16 @@ fn main() {
             state.push(block);
         } else {
             state = slice(&state, block);
+            let mut filtered = Vec::new();
+            for elem in state.clone() {
+                if !is_in(elem, block) {
+                    filtered.push(elem);
+                }
+            }
+            state = filtered;
+            if on_off == "on" {
+                state.push(block);
+            }
         }
     }
     println!("{}", state.len());
