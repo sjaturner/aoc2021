@@ -284,4 +284,19 @@ fn main() {
         }
         println!("{} {}", index, state.len());
     }
+
+    let mut sum = 0u64;
+    for block in state {
+        println!("{} {} {} {} {} {}", block.dim_range[0].1, block.dim_range[0].0, block.dim_range[1].1, block.dim_range[1].0, block.dim_range[2].1, block.dim_range[2].0);
+
+        let xl = (block.dim_range[0].1 - block.dim_range[0].0) as u64;
+        let yl = (block.dim_range[1].1 - block.dim_range[1].0) as u64;
+        let zl = (block.dim_range[2].1 - block.dim_range[2].0) as u64;
+
+        println!("{} {} {}", xl, yl, zl);
+
+        sum += xl * xl + yl * yl + zl * zl;
+    }
+
+    println!("{}", sum);
 }
