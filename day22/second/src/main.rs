@@ -156,17 +156,19 @@ fn main() {
     let stdin = io::stdin();
     let mut state: Vec<Block> = Vec::new();
 
-    let b = Block {
-        dim_range: [(-3, 3), (-3, 3), (-3, 3)],
-    };
+    if false {
+        let b = Block {
+            dim_range: [(-3, 3), (-3, 3), (-3, 3)],
+        };
 
-    let s = Block {
-        dim_range: [(-1, 1), (-1, 1), (-1, 1)],
-    };
+        let s = Block {
+            dim_range: [(-1, 1), (-1, 1), (-1, 1)],
+        };
 
-    state.push(b);
+        state.push(b);
 
-    println!("{:?}", slice(&state, s));
+        println!("{:?}", slice(&state, s));
+    }
 
     for line in stdin.lock().lines() {
         let line = line.expect("Could not read line from standard in");
@@ -181,5 +183,16 @@ fn main() {
         let yu = caps[5].parse::<i32>().unwrap();
         let zl = caps[6].parse::<i32>().unwrap();
         let zu = caps[7].parse::<i32>().unwrap();
+
+        let block = Block {
+            dim_range: [(xl, xu), (yl, yu), (zl, zu)],
+        };
+
+        if state.len() == 0 {
+            state.push(block);
+        } else {
+            state = slice(&state, block);
+        }
     }
+    println!("{}", state.len());
 }
