@@ -12,11 +12,10 @@ fn dim_slice(victim: Block, dim: usize, range: (i32, i32)) -> Vec<Block> {
 
     let victim_dim_range = victim.dim_range[dim];
 
-    if victim_dim_range.1 < range.0 {
-        ret.push(victim);
-    } else if victim_dim_range.0 > range.1 {
-        ret.push(victim);
-    } else if victim_dim_range.0 > range.0 && victim_dim_range.1 < range.1 {
+    if victim_dim_range.1 < range.0
+        || victim_dim_range.0 > range.1
+        || victim_dim_range.0 > range.0 && victim_dim_range.1 < range.1
+    {
         ret.push(victim);
     } else if victim_dim_range.0 < range.0 && victim_dim_range.1 > range.1 {
         let mut l = victim;
@@ -127,17 +126,27 @@ mod tests {
 }
 
 fn block_slice(victim: Block, block: Block) -> Vec<Block> {
-    let ret = Vec::new();
+    let a = dim_slice(victim, 0, block.dim_range[0]);
 
-    ret
+    let mut b = Vec::new();
+    for victim in a.clone() {
+        b.extend(dim_slice(victim, 1, block.dim_range[1]));
+    }
+
+    let mut c = Vec::new();
+    for victim in b.clone() {
+        c.extend(dim_slice(victim, 2, block.dim_range[2]));
+    }
+
+    c
 }
 
-fn slice(mut state: Vec<Block>, block: Block) -> Vec<Block> {
+fn slice(state: &Vec<Block>, block: Block) -> Vec<Block> {
     let mut ret = Vec::new();
 
     for scan in state {
         let copy = block.clone();
-        ret.extend(block_slice(scan, copy));
+        ret.extend(block_slice(*scan, copy));
     }
 
     ret
@@ -145,7 +154,19 @@ fn slice(mut state: Vec<Block>, block: Block) -> Vec<Block> {
 
 fn main() {
     let stdin = io::stdin();
-    let state: Vec<Block> = Vec::new();
+    let mut state: Vec<Block> = Vec::new();
+
+    let b = Block {
+        dim_range: [(-3, 3), (-3, 3), (-3, 3)],
+    };
+
+    let s = Block {
+        dim_range: [(-1, 1), (-1, 1), (-1, 1)],
+    };
+
+    state.push(b);
+
+    println!("{:?}", slice(&state, s));
 
     for line in stdin.lock().lines() {
         let line = line.expect("Could not read line from standard in");
