@@ -12,20 +12,13 @@ fn dim_slice(victim: Block, dim: usize, range: (i32, i32)) -> Vec<Block> {
 
     let victim_dim_range = victim.dim_range[dim];
 
-    println!("victim_dim_range {:?}", victim_dim_range);
-    println!("range {:?}", range);
-
     if victim_dim_range.1 < range.0 {
-        println!("a");
         ret.push(victim);
     } else if victim_dim_range.0 > range.1 {
-        println!("b");
         ret.push(victim);
     } else if victim_dim_range.0 > range.0 && victim_dim_range.1 < range.1 {
-        println!("c");
         ret.push(victim);
     } else if victim_dim_range.0 < range.0 && victim_dim_range.1 > range.1 {
-        println!("d");
         let mut l = victim;
 
         l.dim_range[dim].1 = range.0 - 1;
@@ -40,7 +33,6 @@ fn dim_slice(victim: Block, dim: usize, range: (i32, i32)) -> Vec<Block> {
         r.dim_range[dim].0 = range.1 + 1;
         ret.push(r);
     } else if victim_dim_range.1 > range.1 {
-        println!("e");
         let mut l = victim;
         l.dim_range[dim].1 = range.1 - 1;
         ret.push(l);
@@ -49,7 +41,6 @@ fn dim_slice(victim: Block, dim: usize, range: (i32, i32)) -> Vec<Block> {
         r.dim_range[dim].0 = range.1;
         ret.push(r);
     } else if victim_dim_range.0 < range.0 {
-        println!("f");
         let mut l = victim;
         l.dim_range[dim].1 = range.0 - 1;
         ret.push(l);
@@ -58,7 +49,6 @@ fn dim_slice(victim: Block, dim: usize, range: (i32, i32)) -> Vec<Block> {
         r.dim_range[dim].0 = range.0;
         ret.push(r);
     } else {
-        println!("g");
         ret.push(victim);
     }
 
