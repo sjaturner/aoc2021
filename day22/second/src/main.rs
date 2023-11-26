@@ -107,12 +107,12 @@ fn block_slice(victim: Block, block: Block) -> Vec<Block> {
         let a = dim_slice(victim, 0, block.dim_range[0]);
 
         let mut b = Vec::new();
-        for victim in a.clone() {
+        for victim in a {
             b.extend(dim_slice(victim, 1, block.dim_range[1]));
         }
 
         let mut c = Vec::new();
-        for victim in b.clone() {
+        for victim in b {
             c.extend(dim_slice(victim, 2, block.dim_range[2]));
         }
 
@@ -206,8 +206,12 @@ fn main() {
         } else {
             state = slice(&state, block);
             let mut filtered = Vec::new();
-            for elem in state.clone() {
+            for elem in state {
                 if b_fully_contains_a(elem, block) {
+                } else if has_corners_in(elem, block) {
+                    assert!(false);
+                } else if has_corners_in(block, elem) {
+                    assert!(false);
                 } else {
                     push_check(&mut filtered, elem);
                 }
