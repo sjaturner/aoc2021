@@ -123,12 +123,12 @@ fn is_overlapped(is_this: Block, overlapped_with: Block) -> bool {
 }
 
 fn block_slice(victim: Block, block: Block) -> Vec<Block> {
-    //  if false && !is_overlapped(victim, block) {
-    //      let mut ret = Vec::new();
+//  if !is_overlapped(victim, block) {
+//      let mut ret = Vec::new();
 
-    //      push_check(&mut ret, victim);
-    //      return ret;
-    //  }
+//      push_check(&mut ret, victim);
+//      return ret;
+//  }
 
     let a = dim_slice(victim, 0, block.dim_range[0]);
 
@@ -160,15 +160,15 @@ fn volume(state: &Vec<Block>) -> u64 {
             );
         }
 
-        let xl = (block.dim_range[0].1 - block.dim_range[0].0) as u64;
-        let yl = (block.dim_range[1].1 - block.dim_range[1].0) as u64;
-        let zl = (block.dim_range[2].1 - block.dim_range[2].0) as u64;
+        let xl = (block.dim_range[0].1 - block.dim_range[0].0 + 1) as u64;
+        let yl = (block.dim_range[1].1 - block.dim_range[1].0 + 1) as u64;
+        let zl = (block.dim_range[2].1 - block.dim_range[2].0 + 1) as u64;
 
         if false {
             println!("{} {} {}", xl, yl, zl);
         }
 
-        sum += xl * xl + yl * yl + zl * zl;
+        sum += xl * yl * zl;
     }
 
     sum
@@ -186,7 +186,12 @@ fn slice(state: &Vec<Block>, block: Block) -> Vec<Block> {
 
         let after = volume(&sliced);
 
-        println!("{} {}", before, after);
+        if before != after {
+            println!("{:?}", block);
+            println!("{} {:?}", before, check);
+            println!("{} {:?}", after, sliced);
+            println!();
+        }
 
         ret.extend(sliced);
     }
