@@ -7,7 +7,9 @@ struct Block {
 }
 
 fn push_check(vec: &mut Vec<Block>, block: Block) {
-    println!("{:?}", block);
+    if false {
+        println!("{:?}", block);
+    }
 
     if false
         || block.dim_range[0].0 > block.dim_range[0].1
@@ -25,16 +27,12 @@ fn dim_slice(victim: Block, dim: usize, range: (i32, i32)) -> Vec<Block> {
 
     let victim_dim_range = victim.dim_range[dim];
 
-    println!("enter dim_slice");
-
     if victim_dim_range.1 < range.0
         || victim_dim_range.0 > range.1
         || victim_dim_range.0 > range.0 && victim_dim_range.1 < range.1
     {
-        println!("dim_slice a");
         push_check(&mut ret, victim);
     } else if victim_dim_range.0 < range.0 && victim_dim_range.1 > range.1 {
-        println!("dim_slice b");
         let mut l = victim;
 
         l.dim_range[dim].1 = range.0 - 1;
@@ -49,7 +47,6 @@ fn dim_slice(victim: Block, dim: usize, range: (i32, i32)) -> Vec<Block> {
         r.dim_range[dim].0 = range.1 + 1;
         push_check(&mut ret, r);
     } else if victim_dim_range.1 > range.1 {
-        println!("dim_slice c");
         let mut l = victim;
         l.dim_range[dim].1 = range.1;
         push_check(&mut ret, l);
@@ -58,7 +55,6 @@ fn dim_slice(victim: Block, dim: usize, range: (i32, i32)) -> Vec<Block> {
         r.dim_range[dim].0 = range.1 + 1;
         push_check(&mut ret, r);
     } else if victim_dim_range.0 < range.0 {
-        println!("dim_slice d");
         let mut l = victim;
         l.dim_range[dim].1 = range.0 - 1;
         push_check(&mut ret, l);
@@ -67,11 +63,9 @@ fn dim_slice(victim: Block, dim: usize, range: (i32, i32)) -> Vec<Block> {
         r.dim_range[dim].0 = range.0;
         push_check(&mut ret, r);
     } else {
-        println!("dim_slice e");
         push_check(&mut ret, victim);
     }
 
-    println!("leave dim_slice");
     ret
 }
 
@@ -160,13 +154,48 @@ fn block_slice(victim: Block, block: Block) -> Vec<Block> {
     c
 }
 
+fn volume(state: &Vec<Block>) -> u64 {
+    let mut sum = 0u64;
+    for block in state {
+        if false {
+            println!(
+                "{} {} {} {} {} {}",
+                block.dim_range[0].1,
+                block.dim_range[0].0,
+                block.dim_range[1].1,
+                block.dim_range[1].0,
+                block.dim_range[2].1,
+                block.dim_range[2].0
+            );
+        }
+
+        let xl = (block.dim_range[0].1 - block.dim_range[0].0) as u64;
+        let yl = (block.dim_range[1].1 - block.dim_range[1].0) as u64;
+        let zl = (block.dim_range[2].1 - block.dim_range[2].0) as u64;
+
+        if false {
+            println!("{} {} {}", xl, yl, zl);
+        }
+
+        sum += xl * xl + yl * yl + zl * zl;
+    }
+
+    sum
+}
+
 fn slice(state: &Vec<Block>, block: Block) -> Vec<Block> {
+    let vol_old = volume(state);
+    let len_old = state.len();
     let mut ret = Vec::new();
 
     for scan in state {
         let copy = block.clone();
         ret.extend(block_slice(*scan, copy));
     }
+    let vol_new = volume(&ret);
+    let len_new = ret.len();
+
+    println!("{} {}   {} {}", len_old, vol_old, len_new, vol_new);
 
     ret
 }
@@ -211,6 +240,7 @@ fn main() {
             for elem in state.clone() {
                 if !is_in(elem, block) {
                     push_check(&mut filtered, elem);
+                } else {
                 }
             }
             state = filtered;
@@ -221,28 +251,7 @@ fn main() {
         println!("{} {}", index, state.len());
     }
 
-    let mut sum = 0u64;
-    for block in state {
-        println!(
-            "{} {} {} {} {} {}",
-            block.dim_range[0].1,
-            block.dim_range[0].0,
-            block.dim_range[1].1,
-            block.dim_range[1].0,
-            block.dim_range[2].1,
-            block.dim_range[2].0
-        );
-
-        let xl = (block.dim_range[0].1 - block.dim_range[0].0) as u64;
-        let yl = (block.dim_range[1].1 - block.dim_range[1].0) as u64;
-        let zl = (block.dim_range[2].1 - block.dim_range[2].0) as u64;
-
-        println!("{} {} {}", xl, yl, zl);
-
-        sum += xl * xl + yl * yl + zl * zl;
-    }
-
-    println!("{}", sum);
+    println!("{}", volume(&state));
 }
 
 #[cfg(test)]
