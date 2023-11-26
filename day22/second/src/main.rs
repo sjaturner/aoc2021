@@ -157,23 +157,21 @@ fn volume(state: &Vec<Block>) -> u64 {
 fn slice(state: &Vec<Block>, block: Block) -> Vec<Block> {
     let mut ret = Vec::new();
 
-    for scan in state {
-        let mut check = Vec::new();
-        check.push(scan.clone());
-        let before = volume(&check);
+    let before = volume(state);
 
+    for scan in state {
         let sliced = block_slice(*scan, block);
 
-        let after = volume(&sliced);
-
-        if before != after {
-            println!("{:?}", block);
-            println!("{} {:?}", before, check);
-            println!("{} {:?}", after, sliced);
-            println!();
-        }
-
         ret.extend(sliced);
+    }
+
+    let after = volume(&ret);
+
+    if before != after {
+        println!("{}", before);
+        println!("{}", after);
+        println!();
+        assert!(false);
     }
 
     ret
