@@ -14,7 +14,7 @@ fn push_check(vec: &mut Vec<Block>, block: Block) {
         || block.dim_range[1].0 > block.dim_range[1].1
         || block.dim_range[2].0 > block.dim_range[2].1
     {
-        println!("here");
+        assert!(false);
     }
 
     vec.push(block);
@@ -138,7 +138,7 @@ fn is_overlapped(is_this: Block, overlapped_with: Block) -> bool {
 }
 
 fn block_slice(victim: Block, block: Block) -> Vec<Block> {
-    if !is_overlapped(victim, block) {
+    if false && !is_overlapped(victim, block) {
         let mut ret = Vec::new();
 
         push_check(&mut ret, victim);
