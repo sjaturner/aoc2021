@@ -70,74 +70,65 @@ fn dim_slice(victim: Block, dim: usize, range: (i32, i32)) -> Vec<Block> {
 }
 
 fn point_in_block(x: i32, y: i32, z: i32, block: Block) -> bool {
-    return true
-        && x >= block.dim_range[0].0
+    x >= block.dim_range[0].0
         && x <= block.dim_range[0].1
         && y >= block.dim_range[1].0
         && y <= block.dim_range[1].1
         && z >= block.dim_range[2].0
-        && z <= block.dim_range[2].1;
+        && z <= block.dim_range[2].1
 }
 
 fn is_overlapped(is_this: Block, overlapped_with: Block) -> bool {
-    return false
-        || point_in_block(
-            is_this.dim_range[0].0,
-            is_this.dim_range[1].0,
-            is_this.dim_range[2].0,
-            overlapped_with,
-        )
-        || point_in_block(
-            is_this.dim_range[0].0,
-            is_this.dim_range[1].0,
-            is_this.dim_range[2].1,
-            overlapped_with,
-        )
-        || point_in_block(
-            is_this.dim_range[0].0,
-            is_this.dim_range[1].1,
-            is_this.dim_range[2].0,
-            overlapped_with,
-        )
-        || point_in_block(
-            is_this.dim_range[0].0,
-            is_this.dim_range[1].1,
-            is_this.dim_range[2].1,
-            overlapped_with,
-        )
-        || point_in_block(
-            is_this.dim_range[0].1,
-            is_this.dim_range[1].0,
-            is_this.dim_range[2].0,
-            overlapped_with,
-        )
-        || point_in_block(
-            is_this.dim_range[0].1,
-            is_this.dim_range[1].0,
-            is_this.dim_range[2].1,
-            overlapped_with,
-        )
-        || point_in_block(
-            is_this.dim_range[0].1,
-            is_this.dim_range[1].1,
-            is_this.dim_range[2].0,
-            overlapped_with,
-        )
-        || point_in_block(
-            is_this.dim_range[0].1,
-            is_this.dim_range[1].1,
-            is_this.dim_range[2].1,
-            overlapped_with,
-        );
+    point_in_block(
+        is_this.dim_range[0].0,
+        is_this.dim_range[1].0,
+        is_this.dim_range[2].0,
+        overlapped_with,
+    ) || point_in_block(
+        is_this.dim_range[0].0,
+        is_this.dim_range[1].0,
+        is_this.dim_range[2].1,
+        overlapped_with,
+    ) || point_in_block(
+        is_this.dim_range[0].0,
+        is_this.dim_range[1].1,
+        is_this.dim_range[2].0,
+        overlapped_with,
+    ) || point_in_block(
+        is_this.dim_range[0].0,
+        is_this.dim_range[1].1,
+        is_this.dim_range[2].1,
+        overlapped_with,
+    ) || point_in_block(
+        is_this.dim_range[0].1,
+        is_this.dim_range[1].0,
+        is_this.dim_range[2].0,
+        overlapped_with,
+    ) || point_in_block(
+        is_this.dim_range[0].1,
+        is_this.dim_range[1].0,
+        is_this.dim_range[2].1,
+        overlapped_with,
+    ) || point_in_block(
+        is_this.dim_range[0].1,
+        is_this.dim_range[1].1,
+        is_this.dim_range[2].0,
+        overlapped_with,
+    ) || point_in_block(
+        is_this.dim_range[0].1,
+        is_this.dim_range[1].1,
+        is_this.dim_range[2].1,
+        overlapped_with,
+    )
 }
 
 fn block_slice(victim: Block, block: Block) -> Vec<Block> {
-    if false && !is_overlapped(victim, block) {
-        let mut ret = Vec::new();
+//  if false && !is_overlapped(victim, block) {
+//      let mut ret = Vec::new();
 
-        push_check(&mut ret, victim);
-        return ret;
-    }
+//      push_check(&mut ret, victim);
+//      return ret;
+//  }
 
     let a = dim_slice(victim, 0, block.dim_range[0]);
 
@@ -184,30 +175,22 @@ fn volume(state: &Vec<Block>) -> u64 {
 }
 
 fn slice(state: &Vec<Block>, block: Block) -> Vec<Block> {
-    let vol_old = volume(state);
-    let len_old = state.len();
     let mut ret = Vec::new();
 
     for scan in state {
-        let copy = block.clone();
-        ret.extend(block_slice(*scan, copy));
+        ret.extend(block_slice(*scan, block));
     }
-    let vol_new = volume(&ret);
-    let len_new = ret.len();
-
-    println!("{} {}   {} {}", len_old, vol_old, len_new, vol_new);
 
     ret
 }
 
 fn is_in(is_this: Block, in_this: Block) -> bool {
-    return true
-        && is_this.dim_range[0].0 >= in_this.dim_range[0].0
+    is_this.dim_range[0].0 >= in_this.dim_range[0].0
         && is_this.dim_range[0].1 <= in_this.dim_range[0].1
         && is_this.dim_range[1].0 >= in_this.dim_range[1].0
         && is_this.dim_range[1].1 <= in_this.dim_range[1].1
         && is_this.dim_range[2].0 >= in_this.dim_range[2].0
-        && is_this.dim_range[2].1 <= in_this.dim_range[2].1;
+        && is_this.dim_range[2].1 <= in_this.dim_range[2].1
 }
 
 fn main() {
@@ -232,7 +215,7 @@ fn main() {
             dim_range: [(xl, xu), (yl, yu), (zl, zu)],
         };
 
-        if state.len() == 0 {
+        if state.is_empty() {
             push_check(&mut state, block);
         } else {
             state = slice(&state, block);
