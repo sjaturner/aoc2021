@@ -16,31 +16,26 @@ fn point_in_block(x: i32, y: i32, z: i32, block: Block) -> bool {
 }
 
 impl Block {
-    fn contains_points_from(&self, other: Block) -> bool {
-        let xl = other.dim_range[0].0;
-        let xh = other.dim_range[0].1;
-        let yl = other.dim_range[1].0;
-        let yh = other.dim_range[1].1;
-        let zl = other.dim_range[1].0;
-        let zh = other.dim_range[1].1;
+    fn overlaps(&self, other: Block) -> bool {
+        let xl1 = self.dim_range[0].0;
+        let xh1 = self.dim_range[0].1;
+        let yl1 = self.dim_range[1].0;
+        let yh1 = self.dim_range[1].1;
+        let zl1 = self.dim_range[1].0;
+        let zh1 = self.dim_range[1].1;
 
-        let corners = vec![
-            (xl, yl, zl),
-            (xl, yl, zh),
-            (xl, yh, zl),
-            (xl, yh, zh),
-            (xh, yl, zl),
-            (xh, yl, zh),
-            (xh, yh, zl),
-            (xh, yh, zh),
-        ];
+        let xl2 = other.dim_range[0].0;
+        let xh2 = other.dim_range[0].1;
+        let yl2 = other.dim_range[1].0;
+        let yh2 = other.dim_range[1].1;
+        let zl2 = other.dim_range[1].0;
+        let zh2 = other.dim_range[1].1;
 
-        for xyz in corners {
-            if point_in_block(xyz.0, xyz.1, xyz.2, *self) {
-                return true;
-            }
-        }
-        false
+        let overlap_x = (xh1 >= xl2) && (xl1 <= xh2);
+        let overlap_y = (yh1 >= yl2) && (yl1 <= yh2);
+        let overlap_z = (zh1 >= zl2) && (zl1 <= zh2);
+
+        overlap_x && overlap_y && overlap_z
     }
 }
 
@@ -115,26 +110,8 @@ fn b_fully_contains_a(a: Block, b: Block) -> bool {
         && a.dim_range[2].0 >= b.dim_range[2].0
         && a.dim_range[2].1 <= b.dim_range[2].1
 }
-
-fn has_corners_in(a: Block, b: Block) -> bool {
-    let mut ra = point_in_block(a.dim_range[0].0, a.dim_range[1].0, a.dim_range[2].0, b)
-        || point_in_block(a.dim_range[0].0, a.dim_range[1].0, a.dim_range[2].1, b)
-        || point_in_block(a.dim_range[0].0, a.dim_range[1].1, a.dim_range[2].0, b)
-        || point_in_block(a.dim_range[0].0, a.dim_range[1].1, a.dim_range[2].1, b)
-        || point_in_block(a.dim_range[0].1, a.dim_range[1].0, a.dim_range[2].0, b)
-        || point_in_block(a.dim_range[0].1, a.dim_range[1].0, a.dim_range[2].1, b)
-        || point_in_block(a.dim_range[0].1, a.dim_range[1].1, a.dim_range[2].0, b)
-        || point_in_block(a.dim_range[0].1, a.dim_range[1].1, a.dim_range[2].1, b);
-    let mut rb = b.contains_points_from(a);
-    ra
-}
-
-fn a_and_b_overlap(a: Block, b: Block) -> bool {
-    has_corners_in(a, b) || has_corners_in(b, a)
-}
-
 fn block_slice(victim: Block, block: Block) -> Vec<Block> {
-    if true || a_and_b_overlap(victim, block) {
+    if victim.overlaps(block) {
         let a = dim_slice(victim, 0, block.dim_range[0]);
 
         let mut b = Vec::new();
@@ -244,10 +221,6 @@ fn main() {
             let mut filtered = Vec::new();
             for elem in state {
                 if b_fully_contains_a(elem, block) {
-                } else if has_corners_in(elem, block) {
-                    assert!(false);
-                } else if has_corners_in(block, elem) {
-                    assert!(false);
                 } else {
                     push_check(&mut filtered, elem);
                 }
