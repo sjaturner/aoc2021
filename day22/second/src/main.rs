@@ -123,12 +123,12 @@ fn is_overlapped(is_this: Block, overlapped_with: Block) -> bool {
 }
 
 fn block_slice(victim: Block, block: Block) -> Vec<Block> {
-//  if false && !is_overlapped(victim, block) {
-//      let mut ret = Vec::new();
+    //  if false && !is_overlapped(victim, block) {
+    //      let mut ret = Vec::new();
 
-//      push_check(&mut ret, victim);
-//      return ret;
-//  }
+    //      push_check(&mut ret, victim);
+    //      return ret;
+    //  }
 
     let a = dim_slice(victim, 0, block.dim_range[0]);
 
@@ -178,7 +178,17 @@ fn slice(state: &Vec<Block>, block: Block) -> Vec<Block> {
     let mut ret = Vec::new();
 
     for scan in state {
-        ret.extend(block_slice(*scan, block));
+        let mut check = Vec::new();
+        check.push(scan.clone());
+        let before = volume(&check);
+
+        let sliced = block_slice(*scan, block);
+
+        let after = volume(&sliced);
+
+        println!("{} {}", before, after);
+
+        ret.extend(sliced);
     }
 
     ret
