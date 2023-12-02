@@ -94,6 +94,7 @@ impl Block {
     }
 }
 
+// If I were smart, I would use iterators more in the next two functions
 fn block_slice(victim: Block, block: Block) -> Vec<Block> {
     if victim.overlaps(block) {
         let a = victim.dim_slice(0, block.dim_range[0]);
