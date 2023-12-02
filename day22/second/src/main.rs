@@ -15,6 +15,15 @@ fn point_in_block(x: i32, y: i32, z: i32, block: Block) -> bool {
         && z <= block.dim_range[2].1
 }
 
+fn b_fully_contains_a(a: Block, b: Block) -> bool {
+    a.dim_range[0].0 >= b.dim_range[0].0
+        && a.dim_range[0].1 <= b.dim_range[0].1
+        && a.dim_range[1].0 >= b.dim_range[1].0
+        && a.dim_range[1].1 <= b.dim_range[1].1
+        && a.dim_range[2].0 >= b.dim_range[2].0
+        && a.dim_range[2].1 <= b.dim_range[2].1
+}
+
 impl Block {
     fn overlaps(&self, other: Block) -> bool {
         let xl1 = self.dim_range[0].0;
@@ -37,15 +46,18 @@ impl Block {
 
         overlap_x && overlap_y && overlap_z
     }
+
+    fn volume(&self) -> u64 {
+        let xl = (self.dim_range[0].1 - self.dim_range[0].0 + 1) as u64;
+        let yl = (self.dim_range[1].1 - self.dim_range[1].0 + 1) as u64;
+        let zl = (self.dim_range[2].1 - self.dim_range[2].0 + 1) as u64;
+
+        xl * yl * zl
+    }
 }
 
 fn push_check(vec: &mut Vec<Block>, block: Block) {
-    if false {
-        println!("{:?}", block);
-    }
-
-    if false
-        || block.dim_range[0].0 > block.dim_range[0].1
+    if block.dim_range[0].0 > block.dim_range[0].1
         || block.dim_range[1].0 > block.dim_range[1].1
         || block.dim_range[2].0 > block.dim_range[2].1
     {
@@ -102,14 +114,6 @@ fn dim_slice(victim: Block, dim: usize, range: (i32, i32)) -> Vec<Block> {
     ret
 }
 
-fn b_fully_contains_a(a: Block, b: Block) -> bool {
-    a.dim_range[0].0 >= b.dim_range[0].0
-        && a.dim_range[0].1 <= b.dim_range[0].1
-        && a.dim_range[1].0 >= b.dim_range[1].0
-        && a.dim_range[1].1 <= b.dim_range[1].1
-        && a.dim_range[2].0 >= b.dim_range[2].0
-        && a.dim_range[2].1 <= b.dim_range[2].1
-}
 fn block_slice(victim: Block, block: Block) -> Vec<Block> {
     if victim.overlaps(block) {
         let a = dim_slice(victim, 0, block.dim_range[0]);
@@ -126,40 +130,12 @@ fn block_slice(victim: Block, block: Block) -> Vec<Block> {
 
         c
     } else {
-        let mut ret = Vec::new();
-
-        ret.push(victim);
-        ret
+        vec![victim]
     }
 }
 
 fn volume(state: &Vec<Block>) -> u64 {
-    let mut sum = 0u64;
-    for block in state {
-        if false {
-            println!(
-                "{} {} {} {} {} {}",
-                block.dim_range[0].1,
-                block.dim_range[0].0,
-                block.dim_range[1].1,
-                block.dim_range[1].0,
-                block.dim_range[2].1,
-                block.dim_range[2].0
-            );
-        }
-
-        let xl = (block.dim_range[0].1 - block.dim_range[0].0 + 1) as u64;
-        let yl = (block.dim_range[1].1 - block.dim_range[1].0 + 1) as u64;
-        let zl = (block.dim_range[2].1 - block.dim_range[2].0 + 1) as u64;
-
-        if false {
-            println!("{} {} {}", xl, yl, zl);
-        }
-
-        sum += xl * yl * zl;
-    }
-
-    sum
+    state.iter().map(|block| block.volume()).sum::<u64>()
 }
 
 fn slice(state: &Vec<Block>, block: Block) -> Vec<Block> {
@@ -189,7 +165,7 @@ fn main() {
     let stdin = io::stdin();
     let mut state: Vec<Block> = Vec::new();
 
-    for (index, line) in stdin.lock().lines().enumerate() {
+    for line in stdin.lock().lines() {
         let line = line.expect("Could not read line from standard in");
         let line = line.as_str();
 
@@ -202,13 +178,6 @@ fn main() {
         let yu = caps[5].parse::<i32>().unwrap();
         let zl = caps[6].parse::<i32>().unwrap();
         let zu = caps[7].parse::<i32>().unwrap();
-
-        if true {
-            println!(
-                "{} x={}..{},y={}..{},z={}..{}",
-                on_off, xl, xu, yl, yu, zl, zu
-            );
-        }
 
         let block = Block {
             dim_range: [(xl, xu), (yl, yu), (zl, zu)],
@@ -230,80 +199,7 @@ fn main() {
                 push_check(&mut state, block);
             }
         }
-        //      println!("{} {}", index, state.len());
-        println!("{}", volume(&state));
     }
 
     println!("{}", volume(&state));
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_dim_slice() {
-        let b = Block {
-            dim_range: [(-3, 3), (1, 1), (1, 1)],
-        };
-        assert!(
-            dim_slice(b, 0, (4, 5))
-                == [Block {
-                    dim_range: [(-3, 3), (1, 1), (1, 1)]
-                }]
-        );
-        assert!(
-            dim_slice(b, 0, (-5, -4))
-                == [Block {
-                    dim_range: [(-3, 3), (1, 1), (1, 1)]
-                }]
-        );
-        assert!(
-            dim_slice(b, 0, (-4, 4))
-                == [Block {
-                    dim_range: [(-3, 3), (1, 1), (1, 1)]
-                }]
-        );
-        assert!(
-            dim_slice(b, 0, (-2, 2))
-                == [
-                    Block {
-                        dim_range: [(-3, -3), (1, 1), (1, 1)]
-                    },
-                    Block {
-                        dim_range: [(-2, 2), (1, 1), (1, 1)]
-                    },
-                    Block {
-                        dim_range: [(3, 3), (1, 1), (1, 1)]
-                    }
-                ]
-        );
-        assert!(
-            dim_slice(b, 0, (-4, -3))
-                == [
-                    Block {
-                        dim_range: [(-3, -3), (1, 1), (1, 1)]
-                    },
-                    Block {
-                        dim_range: [(-2, 3), (1, 1), (1, 1)]
-                    }
-                ]
-        );
-        assert!(
-            dim_slice(b, 0, (-2, 5))
-                == [
-                    Block {
-                        dim_range: [(-3, -3), (1, 1), (1, 1)]
-                    },
-                    Block {
-                        dim_range: [(-2, 3), (1, 1), (1, 1)]
-                    }
-                ]
-        );
-        assert!(
-            dim_slice(b, 0, (-3, 3))
-                == [Block {
-                    dim_range: [(-3, 3), (1, 1), (1, 1)]
-                }]
-        );
-    }
 }
