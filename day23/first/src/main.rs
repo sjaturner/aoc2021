@@ -6,10 +6,10 @@ struct Board {
 
 fn destination_col(amphipods_type: char) -> usize {
     match amphipods_type {
-        'A' => 2,
-        'B' => 4,
-        'C' => 6,
-        'D' => 8,
+        'A' => 3,
+        'B' => 5,
+        'C' => 7,
+        'D' => 9,
         _ => panic!(),
     }
 }
@@ -52,6 +52,7 @@ impl Board {
                     if self.tiles[scan][col] != amphipod_type {
                         complete = false;
                     }
+                    scan += 1;
                 }
                 if complete {
                     println!("{} {}", file!(), line!());
@@ -62,7 +63,7 @@ impl Board {
             let mut steps = 0;
             let mut scan = row - 1;
             while scan > 1 {
-                if self.tiles[scan][col] != ' ' {
+                if self.tiles[scan][col] != '.' {
                     println!("{} {}", file!(), line!());
                     return ret;
                 }
@@ -125,5 +126,5 @@ fn main() {
         board.tiles.push(line.chars().collect());
     }
     board.show();
-    println!("{:?}", board.move_one(2, 3));
+    println!("{:?}", board.move_one(3, 3));
 }
