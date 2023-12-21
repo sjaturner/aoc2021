@@ -1,5 +1,6 @@
 use std::io::{self, BufRead};
 
+#[derive(Clone)]
 struct Board {
     tiles: Vec<Vec<char>>,
 }
@@ -10,6 +11,16 @@ fn destination_col(amphipods_type: char) -> usize {
         'B' => 5,
         'C' => 7,
         'D' => 9,
+        _ => panic!(),
+    }
+}
+
+fn move_cost(amphipods_type: char) -> u64 {
+    match amphipods_type {
+        'A' => 1,
+        'B' => 10,
+        'C' => 100,
+        'D' => 1000,
         _ => panic!(),
     }
 }
@@ -37,8 +48,8 @@ impl Board {
         }
         amphipods_position
     }
-    fn move_one(&self, row: usize, col: usize) -> Vec<(usize, usize, usize)> {
-        let mut ret: Vec<(usize, usize, usize)> = Vec::new();
+    fn move_one(&self, row: usize, col: usize) -> Vec<(usize, usize, u64)> {
+        let mut ret: Vec<(usize, usize, u64)> = Vec::new();
 
         if row < 2 {
             println!("{} {}", file!(), line!());
@@ -71,7 +82,7 @@ impl Board {
                 steps += 1;
             }
 
-            let mut accumulate: Vec<(usize, usize, usize)> = Vec::new();
+            let mut accumulate: Vec<(usize, usize, u64)> = Vec::new();
             accumulate.push((scan, col, steps));
 
             let mut left = col;
@@ -82,14 +93,14 @@ impl Board {
             loop {
                 let mut moved = false;
                 if self.tiles[scan][left - 1] == '.' {
-                    left = left - 1;
+                    left -= 1;
                     left_steps += 1;
                     moved = true;
                     accumulate.push((scan, left, left_steps));
                 }
 
                 if self.tiles[scan][right + 1] == '.' {
-                    right = right + 1;
+                    right += 1;
                     right_steps += 1;
                     moved = true;
                     accumulate.push((scan, right, right_steps));
@@ -112,8 +123,8 @@ impl Board {
         println!("{} {}", file!(), line!());
         ret
     }
-    fn move_two(self, row: usize, col: usize) -> Vec<(usize, usize, usize)> {
-        let mut ret: Vec<(usize, usize, usize)> = Vec::new();
+    fn move_two(&self, row: usize, col: usize) -> Vec<(usize, usize, u64)> {
+        let mut ret: Vec<(usize, usize, u64)> = Vec::new();
         let amphipod_type = self.tiles[row][col];
 
         let dest_col = destination_col(amphipod_type);
@@ -153,9 +164,49 @@ impl Board {
                     break;
                 }
             }
-            ret.push((row, dest_col, steps + row - 1));
+            ret.push((row, dest_col, (steps + row - 1).try_into().unwrap()));
         }
         ret
+    }
+}
+
+fn recurse(board: &Board, best: &mut u64, curr: u64) {
+    /* Well this sucks. Whither clone, etc. */
+    let mut state = Board { tiles: Vec::new() };
+    for row in 0..board.tiles.len() {
+        state.tiles.push(Vec::new());
+        for col in 0..board.tiles[row].len() {
+            state.tiles[row].push(board.tiles[row][col]);
+        }
+    }
+
+    let amphipods = board.get_ordered_amphipods();
+
+    for (row, col, amphipod_type) in amphipods {
+        let mut try_move = board.move_one(row, col);
+
+        if try_move.is_empty() {
+            try_move = board.move_two(row, col);
+        }
+
+        if try_move.is_empty() && curr < *best {
+            // No move one and no move two, must be done already.
+            *best = curr;
+        } else {
+            for (dest_row, dest_col, steps) in try_move {
+                let cost = curr + steps * move_cost(amphipod_type);
+
+                if cost < *best {
+                    state.tiles[row][col] = '.';
+                    state.tiles[dest_row][dest_col] = amphipod_type;
+
+                    recurse(&state, best, cost);
+
+                    state.tiles[dest_row][dest_col] = '.';
+                    state.tiles[row][col] = amphipod_type;
+                }
+            }
+        }
     }
 }
 
@@ -166,6 +217,6 @@ fn main() {
         let line = line.expect("Could not read line from standard in");
         board.tiles.push(line.chars().collect());
     }
-    board.show();
-    println!("{:?}", board.move_two(1, 1));
+    let mut best = 1000000;
+    recurse(&board, &mut best, 0);
 }
