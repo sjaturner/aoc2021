@@ -70,6 +70,7 @@ impl Board {
                 scan -= 1;
                 steps += 1;
             }
+
             let mut accumulate: Vec<(usize, usize, usize)> = Vec::new();
             accumulate.push((scan, col, steps));
 
@@ -113,7 +114,47 @@ impl Board {
     }
     fn move_two(self, row: usize, col: usize) -> Vec<(usize, usize, usize)> {
         let mut ret: Vec<(usize, usize, usize)> = Vec::new();
+        let amphipod_type = self.tiles[row][col];
 
+        let dest_col = destination_col(amphipod_type);
+
+        let mut state = '.';
+        let mut space_row: Option<usize> = None;
+
+        for row in 2..self.tiles.len() - 1 {
+            let tile = self.tiles[row][dest_col];
+
+            if state == '.' && tile == '.' {
+                space_row = Some(row);
+            } else if state == '.' && tile == amphipod_type {
+                state = tile;
+            } else if state == amphipod_type && tile == amphipod_type {
+            } else {
+                space_row = None;
+                break;
+            }
+        }
+        if let Some(row) = space_row {
+            assert!(dest_col != col);
+            let go_left = dest_col < col;
+            let mut scan = col;
+            let mut steps = 0;
+
+            loop {
+                scan = if go_left { scan - 1 } else { scan + 1 };
+
+                if self.tiles[row][dest_col] != '.' {
+                    return ret;
+                }
+
+                steps += 1;
+
+                if scan == dest_col {
+                    break;
+                }
+            }
+            ret.push((row, dest_col, steps + row - 1));
+        }
         ret
     }
 }
@@ -126,5 +167,5 @@ fn main() {
         board.tiles.push(line.chars().collect());
     }
     board.show();
-    println!("{:?}", board.move_one(3, 3));
+    println!("{:?}", board.move_two(1, 1));
 }
