@@ -15,6 +15,10 @@ fn destination_col(amphipods_type: char) -> usize {
     }
 }
 
+fn home(col: usize, amphipods_type: char) -> bool {
+    amphipods_type != '.' && col == destination_col(amphipods_type)
+}
+
 fn move_cost(amphipods_type: char) -> u64 {
     match amphipods_type {
         'A' => 1,
@@ -165,11 +169,32 @@ impl Board {
         }
         ret
     }
+    fn done(&self) -> bool {
+        for col in [3, 5, 7, 9] {
+            for row in 2..self.tiles.len() - 1 {
+                let tile = self.tiles[row][col];
+
+                if !home(col, tile) {
+                    return false;
+                }
+            }
+        }
+        true
+    }
 }
 
 fn recurse(board: &Board, best: &mut u64, curr: u64) {
     println!("enter recurse");
     board.show();
+
+    if board.done() {
+        println!("############ done ");
+        if curr < *best {
+            // No move one and no move two, must be done already.
+            *best = curr;
+        }
+        return;
+    }
 
     /* Well this sucks. Whither clone, etc. */
     let mut state = Board { tiles: Vec::new() };
@@ -196,10 +221,6 @@ fn recurse(board: &Board, best: &mut u64, curr: u64) {
         if try_move.is_empty() {
             println!("--------------");
             board.show();
-//          if curr < *best {
-//              // No move one and no move two, must be done already.
-//              *best = curr;
-//          }
         } else {
             for (dest_row, dest_col, steps) in try_move {
                 let cost = curr + steps * move_cost(amphipod_type);
