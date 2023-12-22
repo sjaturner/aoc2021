@@ -73,7 +73,7 @@ impl Board {
                 }
             }
 
-            let mut steps = 0;
+            let mut steps = 1;
             let mut scan = row - 1;
             while scan > 1 {
                 if self.tiles[scan][col] != '.' {
@@ -85,6 +85,7 @@ impl Board {
 
             let mut accumulate: Vec<(usize, usize, u64)> = Vec::new();
             accumulate.push((scan, col, steps));
+            println!("X {} {} {}", scan, col, steps);
 
             let mut left = col;
             let mut left_steps = steps;
@@ -98,6 +99,7 @@ impl Board {
                     left_steps += 1;
                     moved = true;
                     accumulate.push((scan, left, left_steps));
+                    println!("L {} {} {}", scan, left, left_steps);
                 }
 
                 if self.tiles[scan][right + 1] == '.' {
@@ -105,6 +107,7 @@ impl Board {
                     right_steps += 1;
                     moved = true;
                     accumulate.push((scan, right, right_steps));
+                    println!("R {} {} {}", scan, right, right_steps);
                 }
 
                 if !moved {
@@ -138,8 +141,6 @@ impl Board {
 
         let last_row = self.tiles.len() - 2;
 
-        println!("    move_two {} {} {row} {col} {dest_col} {last_row}", file!(), line!());
-
         let mut lowest_dot_row = None;
 
         for scan_row in 2..=last_row{
@@ -154,8 +155,6 @@ impl Board {
                 return ret;
             }
         }
-
-        println!("    move_two {} {} {:?}", file!(), line!(), lowest_dot_row);
 
         if let Some(row) = lowest_dot_row {
             assert!(dest_col != col);
@@ -177,7 +176,6 @@ impl Board {
                 }
             }
             let cost = (steps + row - 1).try_into().unwrap();
-            println!("    move_two {} {} {row} {dest_col} {cost}", file!(), line!());
             ret.push((row, dest_col, cost));
         }
         ret
@@ -201,7 +199,7 @@ fn recurse(board: &Board, best: &mut u64, curr: u64) {
     board.show();
 
     if board.done() {
-        println!("############ done ");
+        println!("############ done {curr}");
         if curr < *best {
             // No move one and no move two, must be done already.
             *best = curr;
@@ -222,7 +220,6 @@ fn recurse(board: &Board, best: &mut u64, curr: u64) {
     println!("amphipods {:?}", amphipods);
 
     for (row, col, amphipod_type) in amphipods {
-        println!("{} {} {row} {col} {amphipod_type}", file!(), line!());
         let mut try_move = board.move_one(row, col);
         println!("    one {} {} {:?}", file!(), line!(), try_move);
 
@@ -232,17 +229,18 @@ fn recurse(board: &Board, best: &mut u64, curr: u64) {
         }
 
         if try_move.is_empty() {
-            println!("--------------");
-            board.show();
         } else {
             for (dest_row, dest_col, steps) in try_move {
                 let cost = curr + steps * move_cost(amphipod_type);
 
                 if cost < *best {
+                    state.show();
+
                     state.tiles[row][col] = '.';
                     state.tiles[dest_row][dest_col] = amphipod_type;
 
                     state.show();
+                    println!("CCCCCCCCCCCC {} {}", amphipod_type, steps * move_cost(amphipod_type));
                     recurse(&state, best, cost);
 
                     state.tiles[dest_row][dest_col] = '.';
