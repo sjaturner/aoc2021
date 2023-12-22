@@ -52,7 +52,6 @@ impl Board {
         let mut ret: Vec<(usize, usize, u64)> = Vec::new();
 
         if row < 2 {
-            println!("{} {}", file!(), line!());
             return ret;
         } else {
             let amphipod_type = self.tiles[row][col];
@@ -66,7 +65,6 @@ impl Board {
                     scan += 1;
                 }
                 if complete {
-                    println!("{} {}", file!(), line!());
                     return ret;
                 }
             }
@@ -75,7 +73,6 @@ impl Board {
             let mut scan = row - 1;
             while scan > 1 {
                 if self.tiles[scan][col] != '.' {
-                    println!("{} {}", file!(), line!());
                     return ret;
                 }
                 scan -= 1;
@@ -120,7 +117,6 @@ impl Board {
                 }
             }
         }
-        println!("{} {}", file!(), line!());
         ret
     }
     fn move_two(&self, row: usize, col: usize) -> Vec<(usize, usize, u64)> {
@@ -130,22 +126,23 @@ impl Board {
         let dest_col = destination_col(amphipod_type);
 
         let mut state = '.';
-        let mut space_row: Option<usize> = None;
+        let mut match_row: Option<usize> = None;
 
-        for row in 2..self.tiles.len() - 1 {
-            let tile = self.tiles[row][dest_col];
+        for scan_row in 2..self.tiles.len() - 1 {
+            let tile = self.tiles[scan_row][dest_col];
 
             if state == '.' && tile == '.' {
-                space_row = Some(row);
-            } else if state == '.' && tile == amphipod_type {
+            } else if state == '.' && tile == amphipod_type && scan_row != row {
+                match_row = Some(scan_row);
                 state = tile;
             } else if state == amphipod_type && tile == amphipod_type {
             } else {
-                space_row = None;
+                match_row = None;
                 break;
             }
         }
-        if let Some(row) = space_row {
+
+        if let Some(row) = match_row {
             assert!(dest_col != col);
             let go_left = dest_col < col;
             let mut scan = col;
@@ -171,6 +168,9 @@ impl Board {
 }
 
 fn recurse(board: &Board, best: &mut u64, curr: u64) {
+    println!("enter recurse");
+    board.show();
+
     /* Well this sucks. Whither clone, etc. */
     let mut state = Board { tiles: Vec::new() };
     for row in 0..board.tiles.len() {
@@ -181,17 +181,25 @@ fn recurse(board: &Board, best: &mut u64, curr: u64) {
     }
 
     let amphipods = board.get_ordered_amphipods();
+    println!("amphipods {:?}", amphipods);
 
     for (row, col, amphipod_type) in amphipods {
+        println!("{} {} {row} {col} {amphipod_type}", file!(), line!());
         let mut try_move = board.move_one(row, col);
+        println!("    one {} {} {:?}", file!(), line!(), try_move);
 
         if try_move.is_empty() {
             try_move = board.move_two(row, col);
+            println!("    two {} {} {:?}", file!(), line!(), try_move);
         }
 
-        if try_move.is_empty() && curr < *best {
-            // No move one and no move two, must be done already.
-            *best = curr;
+        if try_move.is_empty() {
+            println!("--------------");
+            board.show();
+//          if curr < *best {
+//              // No move one and no move two, must be done already.
+//              *best = curr;
+//          }
         } else {
             for (dest_row, dest_col, steps) in try_move {
                 let cost = curr + steps * move_cost(amphipod_type);
@@ -200,6 +208,7 @@ fn recurse(board: &Board, best: &mut u64, curr: u64) {
                     state.tiles[row][col] = '.';
                     state.tiles[dest_row][dest_col] = amphipod_type;
 
+                    state.show();
                     recurse(&state, best, cost);
 
                     state.tiles[dest_row][dest_col] = '.';
@@ -218,5 +227,6 @@ fn main() {
         board.tiles.push(line.chars().collect());
     }
     let mut best = 1000000;
-    recurse(&board, &mut best, 0);
+    recurse(&board, &mut u64::MAX, 0);
+    println!("{best}");
 }
