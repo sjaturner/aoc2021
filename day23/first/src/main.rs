@@ -125,28 +125,39 @@ impl Board {
     }
     fn move_two(&self, row: usize, col: usize) -> Vec<(usize, usize, u64)> {
         let mut ret: Vec<(usize, usize, u64)> = Vec::new();
+
+        if row != 1 {
+            return ret;
+        }
+
         let amphipod_type = self.tiles[row][col];
 
         let dest_col = destination_col(amphipod_type);
 
         let mut state = '.';
-        let mut match_row: Option<usize> = None;
 
-        for scan_row in 2..self.tiles.len() - 1 {
+        let last_row = self.tiles.len() - 2;
+
+        println!("    move_two {} {} {row} {col} {dest_col} {last_row}", file!(), line!());
+
+        let mut lowest_dot_row = None;
+
+        for scan_row in 2..=last_row{
             let tile = self.tiles[scan_row][dest_col];
 
             if state == '.' && tile == '.' {
-            } else if state == '.' && tile == amphipod_type && scan_row != row {
-                match_row = Some(scan_row);
+                lowest_dot_row = Some(scan_row);
+            } else if state == '.' && tile == amphipod_type {
                 state = tile;
             } else if state == amphipod_type && tile == amphipod_type {
             } else {
-                match_row = None;
-                break;
+                return ret;
             }
         }
 
-        if let Some(row) = match_row {
+        println!("    move_two {} {} {:?}", file!(), line!(), lowest_dot_row);
+
+        if let Some(row) = lowest_dot_row {
             assert!(dest_col != col);
             let go_left = dest_col < col;
             let mut scan = col;
@@ -155,7 +166,7 @@ impl Board {
             loop {
                 scan = if go_left { scan - 1 } else { scan + 1 };
 
-                if self.tiles[row][dest_col] != '.' {
+                if self.tiles[1][scan] != '.' {
                     return ret;
                 }
 
@@ -165,7 +176,9 @@ impl Board {
                     break;
                 }
             }
-            ret.push((row, dest_col, (steps + row - 1).try_into().unwrap()));
+            let cost = (steps + row - 1).try_into().unwrap();
+            println!("    move_two {} {} {row} {dest_col} {cost}", file!(), line!());
+            ret.push((row, dest_col, cost));
         }
         ret
     }
@@ -247,7 +260,7 @@ fn main() {
         let line = line.expect("Could not read line from standard in");
         board.tiles.push(line.chars().collect());
     }
-    let mut best = 1000000;
-    recurse(&board, &mut u64::MAX, 0);
+    let mut best = u64::MAX;
+    recurse(&board, &mut best, 0);
     println!("{best}");
 }
