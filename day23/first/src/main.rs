@@ -85,7 +85,6 @@ impl Board {
 
             let mut accumulate: Vec<(usize, usize, u64)> = Vec::new();
             accumulate.push((scan, col, steps));
-            println!("X {} {} {}", scan, col, steps);
 
             let mut left = col;
             let mut left_steps = steps;
@@ -99,7 +98,6 @@ impl Board {
                     left_steps += 1;
                     moved = true;
                     accumulate.push((scan, left, left_steps));
-                    println!("L {} {} {}", scan, left, left_steps);
                 }
 
                 if self.tiles[scan][right + 1] == '.' {
@@ -107,7 +105,6 @@ impl Board {
                     right_steps += 1;
                     moved = true;
                     accumulate.push((scan, right, right_steps));
-                    println!("R {} {} {}", scan, right, right_steps);
                 }
 
                 if !moved {
@@ -195,11 +192,7 @@ impl Board {
 }
 
 fn recurse(board: &Board, best: &mut u64, curr: u64) {
-    println!("enter recurse");
-    board.show();
-
     if board.done() {
-        println!("############ done {curr}");
         if curr < *best {
             // No move one and no move two, must be done already.
             *best = curr;
@@ -217,15 +210,12 @@ fn recurse(board: &Board, best: &mut u64, curr: u64) {
     }
 
     let amphipods = board.get_ordered_amphipods();
-    println!("amphipods {:?}", amphipods);
 
     for (row, col, amphipod_type) in amphipods {
         let mut try_move = board.move_one(row, col);
-        println!("    one {} {} {:?}", file!(), line!(), try_move);
 
         if try_move.is_empty() {
             try_move = board.move_two(row, col);
-            println!("    two {} {} {:?}", file!(), line!(), try_move);
         }
 
         if try_move.is_empty() {
@@ -234,13 +224,9 @@ fn recurse(board: &Board, best: &mut u64, curr: u64) {
                 let cost = curr + steps * move_cost(amphipod_type);
 
                 if cost < *best {
-                    state.show();
-
                     state.tiles[row][col] = '.';
                     state.tiles[dest_row][dest_col] = amphipod_type;
 
-                    state.show();
-                    println!("CCCCCCCCCCCC {} {}", amphipod_type, steps * move_cost(amphipod_type));
                     recurse(&state, best, cost);
 
                     state.tiles[dest_row][dest_col] = '.';
