@@ -107,6 +107,57 @@ fn step(state: &mut State, input: &mut Vec<i64>, instruction: Instruction) -> bo
     }
 }
 
+fn f(state: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> i64 {
+    let w = inp;
+    let mut z = state;
+    let mut x = z;
+
+    //  mod x 26
+    assert!(x >= 0);
+    x %= 26;
+
+    //  div z k0
+    assert!(k0 != 0);
+    z /= k0;
+
+    //  add x k1
+    x += k1;
+
+    //  eql x w
+    x = if x == w { 1 } else { 0 };
+
+    //  eql x 0
+    x = if x == 0 { 1 } else { 0 };
+
+    //  mul y 0
+    //  add y 25
+    let mut y = 25;
+
+    //  mul y x
+    y *= x;
+
+    //  add y 1
+    y += 1;
+
+    //  mul z y
+    z *= y;
+
+    //  mul y 0
+    //  add y w
+    y = w;
+
+    //  add y k2
+    y += k2;
+
+    //  mul y x
+    y *= x;
+
+    //  add z y
+    z += y;
+
+    z
+}
+
 fn main() {
     let stdin = io::stdin();
     let mut instructions = Vec::new();
@@ -152,4 +203,24 @@ fn main() {
     if false {
         println!("{:?}", instructions);
     }
+
+    let mut z = 0;
+    let mut input = vec![1, 3, 5, 7, 9, 2, 4, 6, 8, 9, 9, 9, 9, 9];
+
+    z = f(z, input[0], 1, 13, 14);
+    z = f(z, input[1], 1, 12, 8);
+    z = f(z, input[2], 1, 11, 5);
+    z = f(z, input[3], 26, 0, 4);
+    z = f(z, input[4], 1, 15, 10);
+    z = f(z, input[5], 26, -13, 13);
+    z = f(z, input[6], 1, 10, 16);
+    z = f(z, input[7], 26, -9, 5);
+    z = f(z, input[9], 1, 11, 6);
+    z = f(z, input[9], 1, 13, 13);
+    z = f(z, input[10], 26, -14, 6);
+    z = f(z, input[11], 26, -3, 7);
+    z = f(z, input[12], 26, -2, 13);
+    z = f(z, input[13], 26, -14, 3);
+
+    println!("   {:?}", state.regs[3]);
 }
