@@ -222,5 +222,5 @@ fn main() {
     z = f(z, input[12], 26, -2, 13);
     z = f(z, input[13], 26, -14, 3);
 
-    println!("   {:?}", state.regs[3]);
+    println!("   {:?}", z);
 }
