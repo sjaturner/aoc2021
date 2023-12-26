@@ -1,0 +1,58 @@
+   inp w       inp w       inp w       inp w       inp w       inp w       inp w       inp w       inp w       inp w       inp w       inp w       inp w       inp w       
+   mul x 0     mul x 0     mul x 0     mul x 0     mul x 0     mul x 0     mul x 0     mul x 0     mul x 0     mul x 0     mul x 0     mul x 0     mul x 0     mul x 0     
+   add x z     add x z     add x z     add x z     add x z     add x z     add x z     add x z     add x z     add x z     add x z     add x z     add x z     add x z     
+   mod x 26    mod x 26    mod x 26    mod x 26    mod x 26    mod x 26    mod x 26    mod x 26    mod x 26    mod x 26    mod x 26    mod x 26    mod x 26    mod x 26    
+k0 div z 1     div z 1     div z 1     div z 26    div z 1     div z 26    div z 1     div z 26    div z 1     div z 1     div z 26    div z 26    div z 26    div z 26    
+k1 add x 13    add x 12    add x 11    add x 0     add x 15    add x -13   add x 10    add x -9    add x 11    add x 13    add x -14   add x -3    add x -2    add x -14   
+   eql x w     eql x w     eql x w     eql x w     eql x w     eql x w     eql x w     eql x w     eql x w     eql x w     eql x w     eql x w     eql x w     eql x w     
+   eql x 0     eql x 0     eql x 0     eql x 0     eql x 0     eql x 0     eql x 0     eql x 0     eql x 0     eql x 0     eql x 0     eql x 0     eql x 0     eql x 0     
+   mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     
+   add y 25    add y 25    add y 25    add y 25    add y 25    add y 25    add y 25    add y 25    add y 25    add y 25    add y 25    add y 25    add y 25    add y 25    
+   mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     
+   add y 1     add y 1     add y 1     add y 1     add y 1     add y 1     add y 1     add y 1     add y 1     add y 1     add y 1     add y 1     add y 1     add y 1     
+   mul z y     mul z y     mul z y     mul z y     mul z y     mul z y     mul z y     mul z y     mul z y     mul z y     mul z y     mul z y     mul z y     mul z y     
+   mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     mul y 0     
+   add y w     add y w     add y w     add y w     add y w     add y w     add y w     add y w     add y w     add y w     add y w     add y w     add y w     add y w     
+k2 add y 14    add y 8     add y 5     add y 4     add y 10    add y 13    add y 16    add y 5     add y 6     add y 13    add y 6     add y 7     add y 13    add y 3     
+   mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     mul y x     
+   add z y     add z y     add z y     add z y     add z y     add z y     add z y     add z y     add z y     add z y     add z y     add z y     add z y     add z y     
+
+
+int64_t f(int64_t z, int inp, int k0, int k1, int k2)
+{
+// inp w     
+   int w = inp;
+// mul x 0   
+// add x z   
+   int x = z;
+// mod x 26  
+   x %= 26;
+// div z k0
+   z /= k0;
+// add x k1
+   x += k1;
+// eql x w   
+   x = x == w;
+// eql x 0   
+   x = x == 0;
+// mul y 0   
+// add y 25  
+   y = 25;
+// mul y x   
+   y *= x;
+// add y 1   
+   y += 1;
+// mul z y   
+   z *= y;
+// mul y 0   
+// add y w   
+   y = w;
+// add y k2
+   y += k2;
+// mul y x   
+   y *= x;
+// add z y   
+   z += y;
+
+   return z;
+}
