@@ -136,5 +136,7 @@ fn main() {
         println!("   {:?}", state);
     }
 
-    println!("{:?}", instructions);
+    if false {
+        println!("{:?}", instructions);
+    }
 }
