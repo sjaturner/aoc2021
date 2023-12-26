@@ -127,13 +127,26 @@ fn main() {
     let mut state = State { regs: [0; 4] };
     let mut input = vec![1, 3, 5, 7, 9, 2, 4, 6, 8, 9, 9, 9, 9, 9];
 
+    let verbose = false;
+    let mut ok = true;
     for instruction in &instructions {
-        println!("{:?}", instruction);
+        if verbose {
+            println!("{:?}", instruction);
+        }
         if !step(&mut state, &mut input, *instruction) {
-            println!("fault");
+            if verbose {
+                println!("fault");
+            }
+            ok = false;
             break;
         }
-        println!("   {:?}", state);
+        if verbose {
+            println!("   {:?}", state);
+        }
+    }
+
+    if ok {
+        println!("   {:?}", state.regs[3]);
     }
 
     if false {
