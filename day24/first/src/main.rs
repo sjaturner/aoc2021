@@ -84,10 +84,10 @@ fn step(state: &mut State, input: &mut Vec<i64>, instruction: Instruction) -> bo
         Src::Register(reg) => state.regs[register_to_index(reg)],
     };
     let dst: &mut i64 = &mut state.regs[register_to_index(instruction.dst)];
-    if (instruction.opcode == OpCode::Div) && src_val == 0 {
-        return false;
-    } else if instruction.opcode == OpCode::Mod && (*dst < 0 || src_val <= 0) {
-        return false;
+    if ((instruction.opcode == OpCode::Div) && src_val == 0)
+        || (instruction.opcode == OpCode::Mod && (*dst < 0 || src_val <= 0))
+    {
+        false
     } else {
         *dst = match instruction.opcode {
             OpCode::Inp => src_val,
