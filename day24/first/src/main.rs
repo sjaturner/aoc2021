@@ -176,12 +176,13 @@ fn main() {
 // 93497418454799
 // 93497429354699
 // 93499629698999
-    let mut lower = 93497418454799;
+    let mut upper = 12388518154481;
+    let mut upper = 11165218176471;
 
-//  loop {
-    for val in lower..100000000000000 {
+    loop {
+//  for val in upper..100000000000000 {
 //      let val = rng.gen_range(0..99999999999999i64);
-//      let val = rng.gen_range(lower..99999999999999i64);
+        let val = rng.gen_range(11111111111111..upper);
         let input = bcd_array(val);
         let verbose = false;
 
@@ -217,7 +218,9 @@ fn main() {
 
         if z == 0 {
             println!("{val}");
-//          lower = val;
+            if val < upper {
+                upper = val;
+            }
         }
     }
 }
