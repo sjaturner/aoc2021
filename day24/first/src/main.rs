@@ -164,6 +164,32 @@ fn f(state: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> Option<i64> {
     Some(z)
 }
 
+fn g(state: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> Option<i64> {
+    let w = inp;
+    let mut z = state;
+    let mut x = z;
+
+    //  mod x 26
+    if x < 0 {
+        return None;
+    }
+
+    x %= 26;
+
+    z /= k0;
+
+    //  add x k1
+    x += k1;
+
+    if x != w {
+        z *= 26;
+
+        z += w + k2;
+    }
+
+    Some(z)
+}
+
 fn bcd_array(val: i64) -> Vec<i64> {
     let mut ret = Vec::new();
     let mut val = val;
@@ -248,7 +274,7 @@ fn main() {
         let mut p = 0;
         let mut ok = true;
         for i in 0..14 {
-            if let Some(z) = f(p, input[i], ks[i][0], ks[i][1], ks[i][2]) {
+            if let Some(z) = g(p, input[i], ks[i][0], ks[i][1], ks[i][2]) {
                 p = z;
             } else {
                 ok = false;
