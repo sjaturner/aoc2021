@@ -168,7 +168,6 @@ fn main() {
         let val = rng.gen_range(0..99999999999999i64);
         let input = bcd_array(val);
 
-        println!("{:?}", val);
         let mut state = State { regs: [0; 4] };
         let mut mut_input = input.clone();
         let verbose = false;
@@ -189,7 +188,7 @@ fn main() {
             }
         }
 
-        if ok {
+        if ok && verbose{
             println!("a  {:?}", state.regs[3]);
         }
 
@@ -219,6 +218,17 @@ fn main() {
             panic!();
         }
 
-        println!("c  {:?}", z);
+        if verbose {
+            println!("c  {:?}", z);
+        }
+
+        if false && z == 0 {
+            println!("woot");
+            panic!();
+        }
+
+        if val % 1000 == 0 {
+            print!(".");
+        }
     }
 }
