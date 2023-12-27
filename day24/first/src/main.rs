@@ -107,16 +107,22 @@ fn step(state: &mut State, input: &mut Vec<i64>, instruction: Instruction) -> bo
     }
 }
 
-fn f(state: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> i64 {
+fn f(state: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> Option<i64> {
     let w = inp;
     let mut z = state;
     let mut x = z;
 
     //  mod x 26
+    if x < 0 {
+        return None;
+    }
     assert!(x >= 0);
     x %= 26;
 
     //  div z k0
+    if k0 == 0 {
+        return None;
+    }
     assert!(k0 != 0);
     z /= k0;
 
@@ -155,7 +161,7 @@ fn f(state: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> i64 {
     //  add z y
     z += y;
 
-    z
+    Some(z)
 }
 
 fn main() {
@@ -165,7 +171,7 @@ fn main() {
         let line = line.expect("Could not read line from standard in");
         let line: Vec<&str> = line.split_whitespace().collect();
         let instruction = Instruction {
-            opcode: str_to_opcode(line[0]),
+opcode: str_to_opcode(line[0]),
             dst: str_to_register(line[1]),
             src: if line.len() == 2 {
                 Src::Input
@@ -204,23 +210,37 @@ fn main() {
         println!("{:?}", instructions);
     }
 
-    let mut z = 0;
     let mut input = vec![1, 3, 5, 7, 9, 2, 4, 6, 8, 9, 9, 9, 9, 9];
 
-    z = f(z, input[0], 1, 13, 14);
-    z = f(z, input[1], 1, 12, 8);
-    z = f(z, input[2], 1, 11, 5);
-    z = f(z, input[3], 26, 0, 4);
-    z = f(z, input[4], 1, 15, 10);
-    z = f(z, input[5], 26, -13, 13);
-    z = f(z, input[6], 1, 10, 16);
-    z = f(z, input[7], 26, -9, 5);
-    z = f(z, input[9], 1, 11, 6);
-    z = f(z, input[9], 1, 13, 13);
-    z = f(z, input[10], 26, -14, 6);
-    z = f(z, input[11], 26, -3, 7);
-    z = f(z, input[12], 26, -2, 13);
-    z = f(z, input[13], 26, -14, 3);
+    let z = 0;
 
-    println!("   {:?}", z);
+    if let Some(z)  = f(z, input[0], 1, 13, 14){
+        if let Some(z)  = f(z, input[1], 1, 12, 8){
+            if let Some(z)  = f(z, input[2], 1, 11, 5){
+                if let Some(z)  = f(z, input[3], 26, 0, 4){
+                    if let Some(z)  = f(z, input[4], 1, 15, 10){
+                        if let Some(z)  = f(z, input[5], 26, -13, 13){
+                            if let Some(z)  = f(z, input[6], 1, 10, 16){
+                                if let Some(z)  = f(z, input[7], 26, -9, 5){
+                                    if let Some(z)  = f(z, input[8], 1, 11, 6){
+                                        if let Some(z)  = f(z, input[9], 1, 13, 13){
+                                            if let Some(z)  = f(z, input[10], 26, -14, 6){
+                                                if let Some(z)  = f(z, input[11], 26, -3, 7){
+                                                    if let Some(z)  = f(z, input[12], 26, -2, 13){
+                                                        if let Some(z)  = f(z, input[13], 26, -14, 3){
+                                                            println!("   {:?}", z);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
