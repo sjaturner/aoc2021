@@ -196,42 +196,69 @@ fn main() {
     let mut state = State { regs: [0; 4] };
     let mut input = vec![1, 3, 5, 7, 9, 2, 4, 6, 8, 9, 9, 9, 9, 9];
 
-    let verbose = false;
-    let mut ok = true;
-    for instruction in &instructions {
-        if verbose {
-            println!("{:?}", instruction);
-        }
-        if !step(&mut state, &mut input, *instruction) {
-            if verbose {
-                println!("fault");
-            }
-            ok = false;
-            break;
-        }
-        if verbose {
-            println!("   {:?}", state);
-        }
-    }
-
-    if ok {
-        println!("   {:?}", state.regs[3]);
-    }
-
     if false {
         println!("{:?}", instructions);
     }
 
-
     for val in 0..99999999999999i64 {
-        let mut input = bcd_array(val);
-        let z = 0;
+        let input = bcd_array(val);
 
-        if val % 1000000000 == 0 {
-            println!("{val}");
+        println!("{:?}", val);
+        let mut state = State { regs: [0; 4] };
+        let mut mut_input = input.clone();
+        let verbose = false;
+        let mut ok = true;
+        for instruction in &instructions {
+            if verbose {
+                println!("{:?}", instruction);
+            }
+            if !step(&mut state, &mut mut_input, *instruction) {
+                if verbose {
+                    println!("fault");
+                }
+                ok = false;
+                break;
+            }
+            if verbose {
+                println!("   {:?}", state);
+            }
         }
 
-        if let Some(z) = f(z, input[0], 1, 13, 14) {
+        if ok {
+            println!("a  {:?}", state.regs[3]);
+        }
+
+        let ks: [[i64; 3]; 14] = [
+            [1, 13, 14],
+            [1, 12, 8],
+            [1, 11, 5],
+            [26, 0, 4],
+            [1, 15, 10],
+            [26, -13, 13],
+            [1, 10, 16],
+            [26, -9, 5],
+            [1, 11, 6],
+            [1, 13, 13],
+            [26, -14, 6],
+            [26, -3, 7],
+            [26, -2, 13],
+            [26, -14, 3],
+        ];
+
+        let mut p = 0;
+        let mut ok = true;
+        for i in 0..14 {
+            if let Some(z) = f(p, input[i], ks[i][0], ks[i][1], ks[i][2]) {
+                p = z;
+            } else {
+                ok = false;
+                break;
+            }
+        }
+
+        println!("c  {:?}", p);
+
+        if let Some(z) = f(0, input[0], 1, 13, 14) {
             if let Some(z) = f(z, input[1], 1, 12, 8) {
                 if let Some(z) = f(z, input[2], 1, 11, 5) {
                     if let Some(z) = f(z, input[3], 26, 0, 4) {
@@ -243,11 +270,14 @@ fn main() {
                                             if let Some(z) = f(z, input[9], 1, 13, 13) {
                                                 if let Some(z) = f(z, input[10], 26, -14, 6) {
                                                     if let Some(z) = f(z, input[11], 26, -3, 7) {
-                                                        if let Some(z) = f(z, input[12], 26, -2, 13) {
-                                                            if let Some(z) = f(z, input[13], 26, -14, 3)
+                                                        if let Some(z) = f(z, input[12], 26, -2, 13)
+                                                        {
+                                                            if let Some(z) =
+                                                                f(z, input[13], 26, -14, 3)
                                                             {
+                                                                println!("b  {:?}", z);
                                                                 if z == 0 {
-                                                                    println!("   {:?}", input);
+                                                                    println!("b  {:?}", input);
                                                                 }
                                                             }
                                                         }
