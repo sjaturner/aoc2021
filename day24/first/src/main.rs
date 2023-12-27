@@ -257,41 +257,5 @@ fn main() {
         }
 
         println!("c  {:?}", p);
-
-        if let Some(z) = f(0, input[0], 1, 13, 14) {
-            if let Some(z) = f(z, input[1], 1, 12, 8) {
-                if let Some(z) = f(z, input[2], 1, 11, 5) {
-                    if let Some(z) = f(z, input[3], 26, 0, 4) {
-                        if let Some(z) = f(z, input[4], 1, 15, 10) {
-                            if let Some(z) = f(z, input[5], 26, -13, 13) {
-                                if let Some(z) = f(z, input[6], 1, 10, 16) {
-                                    if let Some(z) = f(z, input[7], 26, -9, 5) {
-                                        if let Some(z) = f(z, input[8], 1, 11, 6) {
-                                            if let Some(z) = f(z, input[9], 1, 13, 13) {
-                                                if let Some(z) = f(z, input[10], 26, -14, 6) {
-                                                    if let Some(z) = f(z, input[11], 26, -3, 7) {
-                                                        if let Some(z) = f(z, input[12], 26, -2, 13)
-                                                        {
-                                                            if let Some(z) =
-                                                                f(z, input[13], 26, -14, 3)
-                                                            {
-                                                                println!("b  {:?}", z);
-                                                                if z == 0 {
-                                                                    println!("b  {:?}", input);
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }
