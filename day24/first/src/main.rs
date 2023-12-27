@@ -163,33 +163,30 @@ fn main() {
     }
 
     let mut rng = rand::thread_rng();
+    let val = rng.gen_range(0..99999999999999i64);
 
-    for val in 0..99999999999999i64 {
-        let val = rng.gen_range(0..99999999999999i64);
+// 62496329365686
+// 12388518154481
+// 61167418676976
+// 73274129287597
+// 73494118565897
+// 82389618198488
+// 93384118554899
+// 93494129132499
+// 93497418454799
+// 93497429354699
+// 93499629698999
+    let mut lower = 93497418454799;
+
+//  loop {
+    for val in lower..100000000000000 {
+//      let val = rng.gen_range(0..99999999999999i64);
+//      let val = rng.gen_range(lower..99999999999999i64);
         let input = bcd_array(val);
-
-        let mut state = State { regs: [0; 4] };
-        let mut mut_input = input.clone();
         let verbose = false;
-        let mut ok = true;
-        for instruction in &instructions {
-            if verbose {
-                println!("{:?}", instruction);
-            }
-            if !step(&mut state, &mut mut_input, *instruction) {
-                if verbose {
-                    println!("fault");
-                }
-                ok = false;
-                break;
-            }
-            if verbose {
-                println!("   {:?}", state);
-            }
-        }
 
-        if ok && verbose{
-            println!("a  {:?}", state.regs[3]);
+        if input.contains(&0i64) {
+            continue;
         }
 
         let ks: [[i64; 3]; 14] = [
@@ -214,21 +211,13 @@ fn main() {
             z = g(z, input[i], ks[i][0], ks[i][1], ks[i][2]);
         }
 
-        if z != state.regs[3] {
-            panic!();
-        }
-
         if verbose {
             println!("c  {:?}", z);
         }
 
-        if false && z == 0 {
-            println!("woot");
-            panic!();
-        }
-
-        if val % 1000 == 0 {
-            print!(".");
+        if z == 0 {
+            println!("{val}");
+//          lower = val;
         }
     }
 }
