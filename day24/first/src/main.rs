@@ -164,27 +164,24 @@ fn f(state: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> Option<i64> {
     Some(z)
 }
 
-fn g(state: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> Option<i64> {
-    let w = inp;
-    let mut z = state;
-    let mut x = z;
-
-    //  mod x 26
-    if x < 0 {
+fn g(z: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> Option<i64> {
+    if z < 0 { // This cannot happen because k2 is always positive
+        panic!();
         return None;
     }
 
-    x %= 26;
+    let mut x = z % 26 + k1; // Sometimes the choice of k1 will mean that the x comparison below must fail as inp is 1..9
 
-    z /= k0;
+    let mut z = z;
 
-    //  add x k1
-    x += k1;
-
-    if x != w {
+    if x == inp {
+        z /= k0; // And k0 is either 1 or 26
+    } else {
+        // The modulo 26 part will be lost with these statements here as k0 is 1 or 26
+        z /= k0; // And k0 is either 1 or 26
         z *= 26;
 
-        z += w + k2;
+        z += inp + k2;
     }
 
     Some(z)
