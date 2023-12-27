@@ -1,4 +1,5 @@
 use std::io::{self, BufRead};
+use rand::Rng;
 
 #[derive(Debug, Copy, Clone)]
 enum Register {
@@ -107,69 +108,7 @@ fn step(state: &mut State, input: &mut Vec<i64>, instruction: Instruction) -> bo
     }
 }
 
-fn f(state: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> Option<i64> {
-    let w = inp;
-    let mut z = state;
-    let mut x = z;
-
-    //  mod x 26
-    if x < 0 {
-        return None;
-    }
-    assert!(x >= 0);
-    x %= 26;
-
-    //  div z k0
-    if k0 == 0 {
-        return None;
-    }
-    assert!(k0 != 0);
-    z /= k0;
-
-    //  add x k1
-    x += k1;
-
-    //  eql x w
-    x = if x == w { 1 } else { 0 };
-
-    //  eql x 0
-    x = if x == 0 { 1 } else { 0 };
-
-    //  mul y 0
-    //  add y 25
-    let mut y = 25;
-
-    //  mul y x
-    y *= x;
-
-    //  add y 1
-    y += 1;
-
-    //  mul z y
-    z *= y;
-
-    //  mul y 0
-    //  add y w
-    y = w;
-
-    //  add y k2
-    y += k2;
-
-    //  mul y x
-    y *= x;
-
-    //  add z y
-    z += y;
-
-    Some(z)
-}
-
-fn g(z: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> Option<i64> {
-    if z < 0 { // This cannot happen because k2 is always positive
-        panic!();
-        return None;
-    }
-
+fn g(z: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> i64 {
     let mut x = z % 26 + k1; // Sometimes the choice of k1 will mean that the x comparison below must fail as inp is 1..9
 
     let mut z = z;
@@ -184,7 +123,7 @@ fn g(z: i64, inp: i64, k0: i64, k1: i64, k2: i64) -> Option<i64> {
         z += inp + k2;
     }
 
-    Some(z)
+    z
 }
 
 fn bcd_array(val: i64) -> Vec<i64> {
@@ -223,7 +162,10 @@ fn main() {
         println!("{:?}", instructions);
     }
 
+    let mut rng = rand::thread_rng();
+
     for val in 0..99999999999999i64 {
+        let val = rng.gen_range(0..99999999999999i64);
         let input = bcd_array(val);
 
         println!("{:?}", val);
@@ -268,17 +210,15 @@ fn main() {
             [26, -14, 3],
         ];
 
-        let mut p = 0;
-        let mut ok = true;
+        let mut z = 0;
         for i in 0..14 {
-            if let Some(z) = g(p, input[i], ks[i][0], ks[i][1], ks[i][2]) {
-                p = z;
-            } else {
-                ok = false;
-                break;
-            }
+            z = g(z, input[i], ks[i][0], ks[i][1], ks[i][2]);
         }
 
-        println!("c  {:?}", p);
+        if z != state.regs[3] {
+            panic!();
+        }
+
+        println!("c  {:?}", z);
     }
 }
