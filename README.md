@@ -21,3 +21,5 @@ it for your day job. Given my current occupation, I can't see that ever
 happening. We have C where I work. A _lot_ of C.
 
 I've programmed C since the 1980's. Rust feels like a natural successor.
+
+![Finished!](./finished.png)
