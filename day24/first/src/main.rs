@@ -176,19 +176,35 @@ fn main() {
 // 93497418454799
 // 93497429354699
 // 93499629698999
-    let mut upper = 12388518154481;
-    let mut upper = 11165218176471;
+    let mut upper = 12388518154481i64;
+    let mut upper = 11165218176471i64;
+    let mut upper = 11164118165471i64;
+    let mut val = 11164118165471i64 + 1;
+    let mut val = 11111111111111i64 - 1;
+    let mut count = 0u64;
 
+// 11164118121470
+// 11164118121472
     loop {
 //  for val in upper..100000000000000 {
 //      let val = rng.gen_range(0..99999999999999i64);
-        let val = rng.gen_range(11111111111111..upper);
+//      let val = rng.gen_range(11111111111111i64..upper);
+        val = 11164118121471;
         let input = bcd_array(val);
         let verbose = false;
+
+//      val += 1;
 
         if input.contains(&0i64) {
             continue;
         }
+
+        count += 1;
+
+        if count % 1000000000 == 0 {
+            println!("{val}");
+        }
+
 
         let ks: [[i64; 3]; 14] = [
             [1, 13, 14],
@@ -217,10 +233,9 @@ fn main() {
         }
 
         if z == 0 {
-            println!("{val}");
-            if val < upper {
-                upper = val;
-            }
+            println!("{val} #");
+            break;
         }
+        break;
     }
 }
