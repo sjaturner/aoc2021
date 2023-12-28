@@ -1,6 +1,6 @@
 # Advent of Code 2021
 
-Way back in June I though that I'd try an Advent of Code. This was partly
+Way back in June I though that I'd try an old Advent of Code. This was partly
 as a way of trying out Rust.
 
 I finished today and - having watched some people finish this years Advent
